@@ -1,0 +1,10 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/livewire/**/*';
+
+/* Stat cards: smaller values, so a row of numbers reads as an overview, not a billboard. */
+.fi-wi-stats-overview-stat .fi-wi-stats-overview-stat-value {
+    @apply text-2xl;
+}
