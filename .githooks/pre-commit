@@ -1,0 +1,3 @@
+#!/bin/sh
+# Blocks the commit unless Pint and PHPStan pass. Enabled by `composer install`. Needs Sail running.
+vendor/bin/sail bin pint --test && vendor/bin/sail bin phpstan analyse --no-progress --memory-limit=1G
