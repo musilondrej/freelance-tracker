@@ -45,11 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->profile(EditProfile::class, isSimple: false)
             ->databaseNotifications()
-            ->multiFactorAuthentication(
-                [AppAuthentication::make()->recoverable()],
-                // Required where the billing data is exposed; optional locally, so the demo stays one click away.
-                isRequired: fn (): bool => app()->isProduction(),
-            )
+            ->multiFactorAuthentication([AppAuthentication::make()->recoverable()])
             ->spa()
             ->databaseTransactions()
             ->resourceEditPageRedirect('view')
