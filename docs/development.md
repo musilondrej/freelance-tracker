@@ -31,4 +31,4 @@ vendor/bin/sail artisan schedule:work
 5. Queue: `QUEUE_CONNECTION=database` and a supervised worker, e.g. `php artisan queue:work --tries=3 --max-time=3600`. Alerts are sent through it. Restart it on deploy with `php artisan queue:restart`.
 6. Set `MAIL_*` for e-mail alerts.
 7. Backups: install `postgresql-client` (for `pg_dump`) and set `BACKUP_DISKS` to include an off-server disk such as S3. The database is backed up nightly at 02:00; a failure or a backup older than a day is mailed to `BACKUP_NOTIFY_MAIL`.
-8. `php artisan make:filament-user`. MFA is required in production and set up on the first login.
+8. `php artisan make:filament-user`. MFA is optional; turn it on in the profile.

@@ -13,6 +13,6 @@ Only the latest `main` is supported.
 ## Design
 
 - No public registration; accounts are created on the server with `php artisan make:filament-user`.
-- MFA (TOTP with recovery codes) is required in production.
+- Optional MFA (TOTP with recovery codes) in the profile.
 - Nonce-based Content Security Policy and hardening headers on every response.
 - Business rules and money integrity are enforced by PostgreSQL constraints, not only by the UI.

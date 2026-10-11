@@ -48,16 +48,12 @@ final class PanelAccessTest extends TestCase
         ];
     }
 
-    public function test_multi_factor_authentication_is_optional_locally_and_required_in_production(): void
+    public function test_multi_factor_authentication_is_optional(): void
     {
         $user = User::factory()->withoutMultiFactorAuthentication()->create();
 
         $this->actingAs($user)->get('/')->assertOk();
         $this->assertFalse(Filament::getPanel('admin')->isMultiFactorAuthenticationRequired());
-
-        // The set-up redirect is wired at boot in production; here the condition itself is checked.
-        $this->app->detectEnvironment(fn (): string => 'production');
-        $this->assertTrue(Filament::getPanel('admin')->isMultiFactorAuthenticationRequired());
     }
 
     public function test_sends_hardening_headers_and_hides_the_php_version(): void
