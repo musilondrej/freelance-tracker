@@ -10,6 +10,7 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Unbilled;
 use App\Filament\Support\InitialsAvatarProvider;
+use App\Http\Middleware\SetUserLocale;
 use App\Reporting\CzkTotal;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
@@ -84,6 +85,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+                SetUserLocale::class,
+            ], isPersistent: true);
     }
 }

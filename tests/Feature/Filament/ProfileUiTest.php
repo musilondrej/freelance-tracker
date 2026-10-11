@@ -6,6 +6,7 @@ namespace Tests\Feature\Filament;
 
 use App\Actions\Billing\CreateStatement;
 use App\Enums\Currency;
+use App\Enums\Locale;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Resources\Clients\Pages\CreateClient;
 use App\Models\TimeEntry;
@@ -49,5 +50,14 @@ final class ProfileUiTest extends TestCase
         $html = $render(User::factory()->create(['billing_name' => 'Jan Novák', 'billing_bank_account' => '123456789/0100']));
         $this->assertStringContainsString('Jan Novák', $html);
         $this->assertStringContainsString('123456789/0100', $html);
+    }
+
+    public function test_ui_follows_the_users_language(): void
+    {
+        $this->actingAs($user = User::factory()->create());
+        $this->get('/profile')->assertSee('Jazyk');
+
+        $user->update(['locale' => Locale::English]);
+        $this->get('/profile')->assertSee('Language')->assertDontSee('Jazyk');
     }
 }
