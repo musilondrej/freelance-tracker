@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\Currency;
+use App\Enums\Locale;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
 use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
@@ -12,6 +13,7 @@ use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,14 +38,15 @@ use Illuminate\Notifications\Notifiable;
  * @property int $workday_hours A full working day: the chart line and the day/week targets.
  * @property Currency $default_currency For new clients.
  * @property int|null $default_hourly_rate For new clients, in minor units.
+ * @property Locale $locale UI language, also used for e-mail alerts.
  */
 #[Fillable([
     'name', 'email', 'password', 'timer_alert_seconds', 'recurring_reminder_days', 'deadline_reminder_days', 'notify_by_mail',
     'billing_name', 'billing_address', 'billing_registration_number', 'billing_vat_number', 'billing_bank_account',
-    'workday_hours', 'default_currency', 'default_hourly_rate',
+    'workday_hours', 'default_currency', 'default_hourly_rate', 'locale',
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasLocalePreference
 {
     /** Same as the column default, for contexts without a signed-in user. */
     public const int DEFAULT_WORKDAY_HOURS = 8;
@@ -60,6 +63,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         'workday_hours' => self::DEFAULT_WORKDAY_HOURS,
         'default_currency' => Currency::CZK->value,
         'default_hourly_rate' => null,
+        'locale' => Locale::Czech->value,
     ];
 
     /** @use HasFactory<UserFactory> */
@@ -83,6 +87,11 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         return $user instanceof self ? $user->workday_hours : self::DEFAULT_WORKDAY_HOURS;
     }
 
+    public function preferredLocale(): string
+    {
+        return $this->locale->value;
+    }
+
     // Single-user app: every account is the owner.
     public function canAccessPanel(Panel $panel): bool
     {
@@ -103,6 +112,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
             'workday_hours' => 'integer',
             'default_currency' => Currency::class,
             'default_hourly_rate' => 'integer',
+            'locale' => Locale::class,
         ];
     }
 }
