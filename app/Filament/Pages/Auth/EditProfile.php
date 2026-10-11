@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages\Auth;
 
 use App\Enums\Currency;
+use App\Enums\Locale;
 use App\Filament\Forms\DurationInput;
 use App\Filament\Forms\MoneyInput;
 use App\Filament\Forms\WorkFields;
@@ -70,10 +71,11 @@ class EditProfile extends BaseEditProfile
                     TextInput::make('billing_bank_account')->label(__('Bank account'))->maxLength(255)->columnSpanFull(),
                 ]),
             Section::make(__('Preferences'))
-                ->description(__('Defaults for new clients and the length of your working day.'))
+                ->description(__('Language, defaults for new clients and the length of your working day.'))
                 ->aside()
                 ->columns(2)
                 ->schema([
+                    Select::make('locale')->label(__('Language'))->options(Locale::class)->required()->columnSpanFull(),
                     Select::make('default_currency')->label(__('Default currency'))->options(Currency::class)->required(),
                     MoneyInput::make('default_hourly_rate', positive: true)
                         ->label(__('Default hourly rate'))

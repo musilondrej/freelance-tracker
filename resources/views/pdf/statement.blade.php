@@ -10,7 +10,7 @@
     $date = fn ($at): string => $at->setTimezone(Period::timezone())->format(Period::DATE_FORMAT);
 @endphp
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <title>{{ __('Statement #:id', ['id' => $statement->id]) }}</title>
