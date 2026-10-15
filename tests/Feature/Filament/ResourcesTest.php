@@ -22,12 +22,15 @@ use App\Filament\Resources\Tasks\RelationManagers\TimeEntriesRelationManager;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Widgets\ActiveProjects;
 use App\Filament\Widgets\UpcomingDeadlines;
+use App\Livewire\TimerIndicator;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\RecurringTask;
 use App\Models\Task;
 use App\Models\TimeEntry;
 use App\Models\User;
+use App\Support\Period;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -102,6 +105,22 @@ final class ResourcesTest extends TestCase
             ->assertActionMounted(TestAction::make('startTimer')->table($other));
 
         $this->assertSame($task->id, TimeEntry::query()->running()->sole()->task_id);
+    }
+
+    public function test_timer_modal_starts_back_dated_or_logs_a_finished_entry(): void
+    {
+        $this->freezeSecond();
+        $task = Task::factory()->create();
+        $start = now()->subMinutes(20)->startOfMinute();
+        // The picker works in the display timezone.
+        $local = fn (CarbonImmutable $at): string => $at->setTimezone(Period::timezone())->toDateTimeString();
+
+        Livewire::test(TimerIndicator::class)
+            ->callAction('start', ['task_id' => $task->id, 'duration' => '0:30', 'started_at' => $local($start->subHours(2))])
+            ->callAction('start', ['task_id' => $task->id, 'started_at' => $local($start)]);
+
+        $this->assertSame(1800, TimeEntry::query()->whereNotNull('ended_at')->sole()->duration_seconds);
+        $this->assertTrue(TimeEntry::query()->running()->sole()->started_at->equalTo($start));
     }
 
     public function test_shows_a_blocked_delete_as_a_notification_and_keeps_the_record(): void
