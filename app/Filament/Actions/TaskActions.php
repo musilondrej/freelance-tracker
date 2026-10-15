@@ -8,6 +8,7 @@ use App\Actions\TimeTracking\StartTimer;
 use App\Enums\PricingType;
 use App\Models\Task;
 use App\Models\TimeEntry;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
@@ -31,9 +32,9 @@ final class TaskActions
     }
 
     /** Starts the timer, or switches to this task when another timer runs. */
-    public static function start(Task $task, Component $livewire, ?string $note = null): void
+    public static function start(Task $task, Component $livewire, ?string $note = null, ?CarbonImmutable $startedAt = null): void
     {
-        app(StartTimer::class)->handle($task, stopRunning: true, note: $note);
+        app(StartTimer::class)->handle($task, stopRunning: true, note: $note, startedAt: $startedAt);
         $livewire->dispatch('timer-changed');
         Notification::make()->success()->title(__('Timer started: :task', ['task' => $task->title]))->send();
     }

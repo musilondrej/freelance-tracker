@@ -78,6 +78,36 @@ final class TimerTest extends TestCase
         $this->assertSame(600, TimeEntry::query()->where('task_id', $first->id)->sole()->duration_seconds);
     }
 
+    public function test_back_dated_switch_ends_the_previous_timer_at_the_new_start(): void
+    {
+        $first = Task::factory()->create();
+        app(StartTimer::class)->handle($first);
+        $this->travel(60)->minutes();
+
+        $entry = app(StartTimer::class)->handle(Task::factory()->create(), stopRunning: true, startedAt: now()->subMinutes(20));
+
+        $this->assertSame(1200, $entry->elapsedSeconds());
+        $this->assertSame(2400, TimeEntry::query()->where('task_id', $first->id)->sole()->duration_seconds);
+    }
+
+    public function test_refuses_a_start_in_the_future_or_before_the_running_timer(): void
+    {
+        $task = Task::factory()->create();
+
+        try {
+            app(StartTimer::class)->handle($task, startedAt: now()->addMinute());
+            $this->fail('A future start was accepted.');
+        } catch (DomainRuleViolation) {
+        }
+
+        app(StartTimer::class)->handle($task);
+
+        $this->expectException(DomainRuleViolation::class);
+        $this->expectExceptionMessage(__('The new start is before the running timer started.'));
+
+        app(StartTimer::class)->handle($task, stopRunning: true, startedAt: now()->subMinute());
+    }
+
     public function test_discards_a_timer_stopped_within_the_same_second(): void
     {
         app(StartTimer::class)->handle(Task::factory()->create());
