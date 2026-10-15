@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets\Reports;
 
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Reporting\RateLine;
 use App\Reporting\ReportFilters;
 use App\Support\Duration;
@@ -17,6 +18,7 @@ use Filament\Widgets\TableWidget;
 class ReportRates extends TableWidget
 {
     use InteractsWithPageFilters;
+    use RefreshesOnTimerChange;
 
     protected static bool $isLazy = false;
 

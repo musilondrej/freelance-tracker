@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Enums\ProjectStatus;
 use App\Filament\Resources\Projects\ProjectResource;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Project;
 use App\Support\Duration;
 use App\Support\Money;
@@ -15,6 +16,8 @@ use Filament\Widgets\TableWidget;
 
 class ActiveProjects extends TableWidget
 {
+    use RefreshesOnTimerChange;
+
     public function table(Table $table): Table
     {
         return $table

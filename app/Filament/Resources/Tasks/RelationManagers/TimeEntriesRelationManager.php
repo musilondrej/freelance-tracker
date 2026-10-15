@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Tasks\RelationManagers;
 
 use App\Filament\Resources\TimeEntries\Schemas\TimeEntryForm;
 use App\Filament\Resources\TimeEntries\TimeEntryResource;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use Filament\Actions\CreateAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Table;
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TimeEntriesRelationManager extends RelationManager
 {
+    use RefreshesOnTimerChange;
+
     protected static string $relationship = 'timeEntries';
 
     protected static ?string $relatedResource = TimeEntryResource::class;

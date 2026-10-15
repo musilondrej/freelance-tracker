@@ -9,6 +9,7 @@ use App\Enums\NavigationGroup;
 use App\Enums\TaskStatus;
 use App\Filament\Actions\TaskActions;
 use App\Filament\Pages\Concerns\FiltersByClientAndProject;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Builders\TaskBuilder;
 use App\Models\Task;
 use BackedEnum;
@@ -27,6 +28,7 @@ use UnitEnum;
 class TaskBoard extends Page
 {
     use FiltersByClientAndProject;
+    use RefreshesOnTimerChange;
 
     /** Done tasks older than this are hidden from the board. */
     private const int DONE_VISIBLE_DAYS = 14;

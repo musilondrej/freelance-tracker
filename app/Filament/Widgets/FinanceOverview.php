@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Pages\Unbilled;
 use App\Filament\Support\FinanceStats;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Reporting\CurrencyTotals;
 use App\Reporting\FinancialSummary;
 use App\Support\Period;
@@ -15,6 +16,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class FinanceOverview extends StatsOverviewWidget
 {
+    use RefreshesOnTimerChange;
+
     protected static bool $isLazy = false;
 
     protected ?string $pollingInterval = null;

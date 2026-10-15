@@ -10,6 +10,7 @@ use App\Filament\Actions\StatementActions;
 use App\Filament\Actions\TaskActions;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Widgets\FinanceOverview;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Task;
 use App\Reporting\UnbilledWork;
 use App\Support\Duration;
@@ -33,6 +34,7 @@ use UnitEnum;
 class Unbilled extends Page implements HasTable
 {
     use InteractsWithTable;
+    use RefreshesOnTimerChange;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxArrowDown;
 

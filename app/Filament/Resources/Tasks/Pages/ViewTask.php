@@ -7,6 +7,7 @@ namespace App\Filament\Resources\Tasks\Pages;
 use App\Filament\Actions\ArchiveActions;
 use App\Filament\Actions\TaskActions;
 use App\Filament\Resources\Tasks\TaskResource;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -16,6 +17,8 @@ use Illuminate\Contracts\Support\Htmlable;
 
 class ViewTask extends ViewRecord
 {
+    use RefreshesOnTimerChange;
+
     protected static string $resource = TaskResource::class;
 
     public function getTitle(): string|Htmlable
