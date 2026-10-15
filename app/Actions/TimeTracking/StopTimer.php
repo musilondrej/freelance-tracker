@@ -25,7 +25,6 @@ final class StopTimer
             }
 
             if ($endedAt instanceof CarbonImmutable && $endedAt->lessThanOrEqualTo($entry->started_at)) {
-                // Never silently drop a running entry because of a typo in the new start.
                 throw DomainRuleViolation::because('The new start is before the running timer started.');
             }
 

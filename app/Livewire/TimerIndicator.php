@@ -98,8 +98,6 @@ class TimerIndicator extends Component implements HasActions, HasSchemas
     }
 
     /**
-     * With an end the entry is logged as finished, otherwise the timer starts (now or back-dated).
-     *
      * @param  array<string, mixed>  $data
      */
     private function startOrLog(array $data): void
