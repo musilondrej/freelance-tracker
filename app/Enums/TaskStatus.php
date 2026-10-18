@@ -16,19 +16,7 @@ enum TaskStatus: string implements HasColor, HasIcon, HasLabel
     case InProgress = 'in_progress';
     case Waiting = 'waiting';
     case Review = 'review';
-    /** Long-running work, like development for a regular client. Open and trackable, but kept off the kanban. */
-    case Ongoing = 'ongoing';
     case Done = 'done';
-
-    /**
-     * The kanban columns.
-     *
-     * @return list<self>
-     */
-    public static function onBoard(): array
-    {
-        return array_values(array_filter(self::cases(), fn (self $status): bool => $status !== self::Ongoing));
-    }
 
     public function getLabel(): string
     {
@@ -38,7 +26,6 @@ enum TaskStatus: string implements HasColor, HasIcon, HasLabel
             self::InProgress => __('In progress'),
             self::Waiting => __('Waiting'),
             self::Review => __('Review'),
-            self::Ongoing => __('Ongoing'),
             self::Done => __('Done'),
         };
     }
@@ -49,7 +36,6 @@ enum TaskStatus: string implements HasColor, HasIcon, HasLabel
             self::Backlog, self::Todo, self::Review => 'gray',
             self::InProgress => 'primary',
             self::Waiting => 'warning',
-            self::Ongoing => 'info',
             self::Done => 'success',
         };
     }
@@ -62,7 +48,6 @@ enum TaskStatus: string implements HasColor, HasIcon, HasLabel
             self::InProgress => Heroicon::OutlinedPlayCircle,
             self::Waiting => Heroicon::OutlinedPauseCircle,
             self::Review => Heroicon::OutlinedEye,
-            self::Ongoing => Heroicon::OutlinedArrowPath,
             self::Done => Heroicon::OutlinedCheckCircle,
         };
     }

@@ -107,7 +107,7 @@ class TaskBoard extends Page
             ->get()
             ->groupBy(fn (Task $task): string => $task->status->value);
 
-        return collect(TaskStatus::onBoard())
+        return collect(TaskStatus::cases())
             ->mapWithKeys(fn (TaskStatus $status): array => [$status->value => $tasks->get($status->value, new Collection)->values()])
             ->all();
     }

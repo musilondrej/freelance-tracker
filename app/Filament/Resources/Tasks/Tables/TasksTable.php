@@ -23,6 +23,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class TasksTable
@@ -89,6 +90,7 @@ class TasksTable
                 SelectFilter::make('pricing_type')->label(__('Pricing'))->options(PricingType::class),
                 Filter::make('open')->label(__('Open only'))->toggle()->default()
                     ->query(fn (TaskBuilder $query) => $query->open()),
+                TernaryFilter::make('is_ongoing')->label(__('Ongoing')),
                 Filter::make('overdue')->label(__('Overdue'))->toggle()
                     ->query(fn (TaskBuilder $query) => $query->overdue()),
                 ArchivedFilter::make(),

@@ -40,6 +40,7 @@ use LogicException;
  * @property int|null $hourly_rate Overrides the project or client rate. Minor units per hour.
  * @property int|null $fixed_price Minor units. Required for fixed pricing.
  * @property int|null $estimated_seconds
+ * @property bool $is_ongoing Long-running work kept off the kanban, used only for time tracking.
  * @property CarbonImmutable|null $due_on
  * @property int $position Order within the kanban column.
  * @property CarbonImmutable|null $completed_at
@@ -52,7 +53,7 @@ use LogicException;
  */
 #[Fillable([
     'client_id', 'project_id', 'title', 'description', 'status', 'priority', 'pricing_type',
-    'hourly_rate', 'fixed_price', 'estimated_seconds', 'due_on', 'position',
+    'hourly_rate', 'fixed_price', 'estimated_seconds', 'due_on', 'position', 'is_ongoing',
 ])]
 #[UseEloquentBuilder(TaskBuilder::class)]
 class Task extends Model
@@ -71,6 +72,7 @@ class Task extends Model
         'priority' => TaskPriority::Normal->value,
         'pricing_type' => PricingType::Hourly->value,
         'position' => 0,
+        'is_ongoing' => false,
     ];
 
     protected static function booted(): void
@@ -330,6 +332,7 @@ class Task extends Model
             'period_start' => 'immutable_date',
             'period_end' => 'immutable_date',
             'position' => 'integer',
+            'is_ongoing' => 'boolean',
             'completed_at' => 'immutable_datetime',
             'ready_to_bill_at' => 'immutable_datetime',
         ];

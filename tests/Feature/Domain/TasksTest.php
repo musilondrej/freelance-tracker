@@ -206,7 +206,7 @@ final class TasksTest extends TestCase
 
     public function test_ongoing_task_stays_open_but_off_the_board(): void
     {
-        $ongoing = Task::factory()->create(['status' => TaskStatus::Ongoing]);
+        $ongoing = Task::factory()->create(['status' => TaskStatus::InProgress, 'is_ongoing' => true]);
         $todo = Task::factory()->create(['status' => TaskStatus::Todo]);
 
         $this->assertEqualsCanonicalizing([$ongoing->id, $todo->id], Task::query()->open()->pluck('id')->all());

@@ -81,10 +81,10 @@ final class TaskBuilder extends ArchivableBuilder
         return $this->withCount(['checklistItems', 'checklistItems as checklist_done_count' => fn (Builder $items) => $items->where('is_done', true)]);
     }
 
-    /** What the kanban shows: its columns' open tasks, plus done ones for a few days so a finished card does not vanish at once. */
+    /** What the kanban shows: open tasks that are not ongoing, plus done ones for a few days so a finished card does not vanish at once. */
     public function onBoard(int $doneVisibleDays): static
     {
-        return $this->whereIn('tasks.status', TaskStatus::onBoard())
+        return $this->where('tasks.is_ongoing', false)
             ->where(fn (self $query) => $query
                 ->open()
                 ->orWhere('tasks.completed_at', '>=', now()->subDays($doneVisibleDays)));

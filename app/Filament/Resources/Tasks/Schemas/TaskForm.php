@@ -15,6 +15,7 @@ use App\Models\Task;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -44,12 +45,13 @@ class TaskForm
                     ->columnSpan(1)
                     ->schema([
                         Select::make('status')->label(__('Status'))->options(TaskStatus::class)
-                            ->hintIcon(Heroicon::OutlinedInformationCircle, tooltip: __('Ongoing tasks stay off the kanban, but you can still log time on them.'))
                             ->default(fn (): TaskStatus => TaskStatus::tryFrom(request()->string('status')->toString()) ?? TaskStatus::Todo)
                             ->required(),
                         Select::make('priority')->label(__('Priority'))->options(TaskPriority::class)->default(TaskPriority::Normal)->required(),
                         DatePicker::make('due_on')->label(__('Deadline')),
                         DurationInput::make('estimated_seconds')->label(__('Estimated time')),
+                        Toggle::make('is_ongoing')->label(__('Ongoing'))
+                            ->hintIcon(Heroicon::OutlinedInformationCircle, tooltip: __('Ongoing tasks are not shown on the kanban and serve only for time tracking.')),
                     ]),
                 Section::make(__('Billing'))
                     ->columnSpan(2)
