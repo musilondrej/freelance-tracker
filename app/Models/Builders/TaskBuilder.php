@@ -68,6 +68,13 @@ final class TaskBuilder extends ArchivableBuilder
             ->withSum('timeEntries as hourly_value', 'amount');
     }
 
+    /** The most recently tracked tasks first, untracked ones last. */
+    public function latestTrackedFirst(): static
+    {
+        return $this->withMax('timeEntries as last_tracked_at', 'started_at')
+            ->orderByRaw('last_tracked_at DESC NULLS LAST');
+    }
+
     /** Adds `checklist_items_count` and `checklist_done_count`. */
     public function withChecklistProgress(): static
     {

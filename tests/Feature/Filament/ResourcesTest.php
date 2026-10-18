@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Filament;
 
 use App\Actions\Billing\CreateStatement;
+use App\Enums\TaskStatus;
 use App\Filament\Pages\TaskBoard;
 use App\Filament\RelationManagers\NotesRelationManager;
 use App\Filament\Resources\Clients\Pages\CreateClient;
@@ -122,6 +123,22 @@ final class ResourcesTest extends TestCase
         $this->assertSame([$entry->task_id, 'Review'], [$running->task_id, $running->note]);
 
         Livewire::test(RecentTimeEntries::class)->assertActionHidden(TestAction::make('continueEntry')->table($running));
+    }
+
+    public function test_restarts_a_recent_task_from_the_topbar(): void
+    {
+        $older = TimeEntry::factory()->create(['started_at' => now()->subDays(2), 'ended_at' => now()->subDays(2)->addHour()]);
+        $newer = TimeEntry::factory()->create(['started_at' => now()->subDay(), 'ended_at' => now()->subDay()->addHour()]);
+        $done = TimeEntry::factory()->create(['started_at' => now()->subHours(3), 'ended_at' => now()->subHours(2)]);
+        $done->task->update(['status' => TaskStatus::Done]);
+
+        $timer = Livewire::test(TimerIndicator::class);
+        $this->assertSame([$newer->task_id, $older->task_id], $timer->get('recentTasks')->modelKeys());
+
+        $timer->mountAction('restart', ['task' => $older->task_id])->assertDispatched('timer-changed');
+
+        $this->assertSame($older->task_id, TimeEntry::query()->running()->sole()->task_id);
+        $this->assertSame([$newer->task_id], Livewire::test(TimerIndicator::class)->get('recentTasks')->modelKeys());
     }
 
     public function test_timer_modal_starts_back_dated_or_logs_a_finished_entry(): void

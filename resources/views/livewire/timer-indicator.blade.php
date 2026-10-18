@@ -1,4 +1,5 @@
 @use('App\Filament\Resources\Tasks\TaskResource')
+@use('Illuminate\Support\Js')
 
 @php
     $entry = $this->running;
@@ -111,6 +112,37 @@
         @else
             {{ $this->startAction->iconButton()->tooltip(__('Start timer')) }}
         @endif
+    @endif
+
+    @if (! $large && $this->recentTasks->isNotEmpty())
+        <x-filament::dropdown placement="bottom-end" width="sm" class="ms-1">
+            <x-slot name="trigger">
+                <x-filament::icon-button
+                    icon="heroicon-o-arrow-path"
+                    color="gray"
+                    :label="__('Restart a recent task')"
+                    :tooltip="__('Restart a recent task')"
+                />
+            </x-slot>
+
+            <x-filament::dropdown.header>{{ __('Restart a recent task') }}</x-filament::dropdown.header>
+
+            <x-filament::dropdown.list>
+                @foreach ($this->recentTasks as $task)
+                    <x-filament::dropdown.list.item
+                        wire:key="recent-{{ $task->id }}"
+                        wire:click="mountAction('restart', {{ Js::from(['task' => $task->id]) }})"
+                        x-on:click="close"
+                        icon="heroicon-m-play"
+                    >
+                        <span class="block truncate font-medium">{{ $task->title }}</span>
+                        <span class="block truncate text-xs text-gray-500 dark:text-gray-400">
+                            <span class="font-mono">{{ $task->key() }}</span> · {{ $task->contextLabel() }}
+                        </span>
+                    </x-filament::dropdown.list.item>
+                @endforeach
+            </x-filament::dropdown.list>
+        </x-filament::dropdown>
     @endif
 
     <x-filament-actions::modals />
