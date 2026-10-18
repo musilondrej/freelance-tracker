@@ -20,9 +20,11 @@ use App\Support\Money;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class TasksTable
@@ -51,7 +53,11 @@ class TasksTable
                     ->wrap()
                     ->extraAttributes(['class' => 'min-w-56'])
                     ->description(fn (Task $record): string => $record->contextLabel()),
-                TextColumn::make('status')->label(__('Status'))->badge()->sortable(),
+                // An ongoing task's status carries no meaning, so the badge shows the flag instead.
+                TextColumn::make('status')->label(__('Status'))->badge()->sortable()
+                    ->formatStateUsing(fn (TaskStatus $state, Task $record): string => $record->is_ongoing ? (string) __('Ongoing') : $state->getLabel())
+                    ->color(fn (TaskStatus $state, Task $record): string => $record->is_ongoing ? 'info' : $state->getColor())
+                    ->icon(fn (TaskStatus $state, Task $record): Heroicon => $record->is_ongoing ? Heroicon::OutlinedArrowPath : $state->getIcon()),
                 TextColumn::make('priority')->label(__('Priority'))->badge()->sortable()->toggleable()
                     ->state(fn (Task $record): ?TaskPriority => $record->priority->standsOut() ? $record->priority : null),
                 TextColumn::make('due_on')
@@ -89,6 +95,7 @@ class TasksTable
                 SelectFilter::make('pricing_type')->label(__('Pricing'))->options(PricingType::class),
                 Filter::make('open')->label(__('Open only'))->toggle()->default()
                     ->query(fn (TaskBuilder $query) => $query->open()),
+                TernaryFilter::make('is_ongoing')->label(__('Ongoing')),
                 Filter::make('overdue')->label(__('Overdue'))->toggle()
                     ->query(fn (TaskBuilder $query) => $query->overdue()),
                 ArchivedFilter::make(),
