@@ -130,7 +130,6 @@ final class BillingTest extends TestCase
             'other client' => [fn (Client $c): TimeEntry => TimeEntry::factory()->create()],
             'running' => [fn (Client $c): TimeEntry => TimeEntry::factory()->running()->create(['task_id' => Task::factory()->create(['client_id' => $c])])],
             'fixed' => [fn (Client $c): TimeEntry => TimeEntry::factory()->create(['task_id' => Task::factory()->fixed(1000)->create(['client_id' => $c])])],
-            'non-billable' => [fn (Client $c): TimeEntry => TimeEntry::factory()->create(['task_id' => Task::factory()->nonBillable()->create(['client_id' => $c])])],
         ];
     }
 

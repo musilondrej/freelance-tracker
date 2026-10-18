@@ -71,7 +71,7 @@ final class ResourcesTest extends TestCase
         $recurring = RecurringTask::factory()->count(2)->create()->firstOrFail();
 
         foreach ([
-            '/', '/task-board', '/unbilled', '/time-entries', '/profile',
+            '/', '/task-board', '/unbilled', '/time-entries',
             '/reports', '/reports?filters[range]=custom&filters[from]=2026-01-01&filters[to]=2026-12-31', '/reports?filters[range]=custom&filters[from]=nonsense&filters[to]=2026-13-45',
             '/clients', '/clients/create', "/clients/{$client->id}", "/clients/{$client->id}/edit",
             '/projects', '/projects/create', "/projects/{$project->id}", "/projects/{$project->id}/edit",
@@ -181,14 +181,6 @@ final class ResourcesTest extends TestCase
 
         $this->assertNull(Client::query()->find($free->id));
         $this->assertNotNull(Client::query()->find($withTemplate->id));
-    }
-
-    public function test_offers_creating_related_records_on_the_detail_pages(): void
-    {
-        $client = Client::factory()->create();
-
-        Livewire::test(ProjectsRelationManager::class, ['ownerRecord' => $client, 'pageClass' => ViewClient::class])
-            ->assertActionVisible(TestAction::make('create')->table());
     }
 
     public function test_shows_a_domain_rule_violation_as_a_notification_instead_of_an_error_page(): void

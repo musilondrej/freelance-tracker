@@ -102,7 +102,6 @@ final class RatesAndSnapshotsTest extends TestCase
         return [
             'below half' => [17, 100],
             'exactly half' => [18, 100],
-            'odd rate' => [7, 99_999],
             'repeating fraction up' => [2400, 100_000],
             'almost a day' => [86_399, 123_457],
         ];

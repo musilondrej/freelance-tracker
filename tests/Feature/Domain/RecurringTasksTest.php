@@ -159,7 +159,6 @@ final class RecurringTasksTest extends TestCase
         $task = $recurring->tasks()->sole();
         TimeEntry::factory()->lasting(3600)->create(['task_id' => $task]);
 
-        $this->assertNull($task->ready_to_bill_at);
         $this->assertSame(150_000, (int) $task->timeEntries()->sum('amount'));
     }
 

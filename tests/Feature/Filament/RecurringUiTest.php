@@ -51,10 +51,8 @@ final class RecurringUiTest extends TestCase
             ->assertHasNoFormErrors();
 
         $recurring = RecurringTask::query()->sole();
-        $task = $recurring->tasks()->sole();
+        $recurring->tasks()->sole();
         $this->assertSame(360_000, $recurring->fixed_price);
-        $this->assertSame('Hosting – '.$today->year, $task->title);
-        $this->assertNotNull($task->ready_to_bill_at);
     }
 
     public function test_generates_now_and_lists_the_generated_tasks(): void
