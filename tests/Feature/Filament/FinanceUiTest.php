@@ -94,6 +94,21 @@ final class FinanceUiTest extends TestCase
         $this->assertFalse($b->isAllocated());
     }
 
+    public function test_edits_a_note_inline_only_while_the_entry_is_not_on_a_statement(): void
+    {
+        $free = TimeEntry::factory()->create();
+        $billed = TimeEntry::factory()->create(['note' => 'old']);
+
+        Livewire::test(ManageTimeEntries::class)
+            ->selectTableRecords([$billed->id])
+            ->callAction(TestAction::make('addToStatement')->table()->bulk(), ['statement_id' => null])
+            ->call('updateTableColumnState', 'note', (string) $free->id, 'Code review')
+            ->call('updateTableColumnState', 'note', (string) $billed->id, 'new');
+
+        $this->assertSame('Code review', $free->fresh()?->note);
+        $this->assertSame('old', $billed->fresh()?->note);
+    }
+
     public function test_exports_time_entries_respecting_the_active_filter_with_bom_and_czech_numbers(): void
     {
         $acme = Client::factory()->create(['name' => 'Acme']);

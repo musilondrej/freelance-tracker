@@ -8,6 +8,7 @@ use App\Filament\Widgets\ActiveProjects;
 use App\Filament\Widgets\ActiveTimer;
 use App\Filament\Widgets\DailyTrackedTimeChart;
 use App\Filament\Widgets\FinanceOverview;
+use App\Filament\Widgets\RecentTimeEntries;
 use App\Filament\Widgets\UpcomingDeadlines;
 use App\Filament\Widgets\WorkStats;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -21,6 +22,7 @@ class Dashboard extends BaseDashboard
             WorkStats::class,
             FinanceOverview::class,
             DailyTrackedTimeChart::class,
+            RecentTimeEntries::class,
             UpcomingDeadlines::class,
             ActiveProjects::class,
         ];
