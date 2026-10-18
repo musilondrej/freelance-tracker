@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Reporting;
+namespace App\Filament\Support;
 
 use App\Support\Money;
 use Illuminate\Support\Str;
+use SplFileObject;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -20,20 +21,13 @@ final class CsvExport
     public static function download(string $filename, array $header, iterable $rows): StreamedResponse
     {
         return response()->streamDownload(function () use ($header, $rows): void {
-            $out = fopen('php://output', 'wb');
-
-            if ($out === false) {
-                return;
-            }
-
-            fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, $header, ';', '"', '');
+            $out = new SplFileObject('php://output', 'wb');
+            $out->fwrite("\xEF\xBB\xBF");
+            $out->fputcsv($header, ';', '"', '');
 
             foreach ($rows as $row) {
-                fputcsv($out, array_map(self::cell(...), $row), ';', '"', '');
+                $out->fputcsv(array_map(self::cell(...), $row), ';', '"', '');
             }
-
-            fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 

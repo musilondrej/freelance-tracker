@@ -8,7 +8,7 @@ use App\Enums\BudgetStatus;
 use App\Enums\ProjectStatus;
 use App\Models\Builders\ProjectBuilder;
 use App\Models\Concerns\Archivable;
-use App\Reporting\ProjectStats;
+use App\Support\Money;
 use Carbon\CarbonImmutable;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -43,6 +43,8 @@ class Project extends Model
 {
     use Archivable;
 
+    public const int BUDGET_WARNING_PERCENT = 80;
+
     /** @use HasFactory<ProjectFactory> */
     use HasFactory;
 
@@ -72,14 +74,30 @@ class Project extends Model
         return $this->budget === null ? null : $this->budget - $this->budgetConsumed();
     }
 
+    /** Whole percent of the budget consumed, rounded half up. Null without a budget. */
     public function budgetUsagePercent(): ?int
     {
-        return ProjectStats::usagePercent($this->budgetConsumed(), $this->budget);
+        return $this->budget === null || $this->budget === 0 ? null : Money::roundHalfUpDiv($this->budgetConsumed() * 100, $this->budget);
     }
 
+    /**
+     * Over: consumed or planned work is above the budget. Near: uses the rounded percent,
+     * so the colour matches the shown number. Null without a budget.
+     */
     public function budgetStatus(): ?BudgetStatus
     {
-        return ProjectStats::status($this->budgetConsumed(), $this->budgetPlanned(), $this->budget);
+        return match (true) {
+            $this->budget === null => null,
+            $this->budgetConsumed() > $this->budget || $this->budgetPlanned() > $this->budget => BudgetStatus::Over,
+            ($this->budgetUsagePercent() ?? 0) >= self::BUDGET_WARNING_PERCENT => BudgetStatus::Near,
+            default => BudgetStatus::Ok,
+        };
+    }
+
+    /** The client can no longer change: the project has tasks. */
+    public function isClientLocked(): bool
+    {
+        return $this->tasks()->exists();
     }
 
     /** @return BelongsTo<Client, $this> */

@@ -39,12 +39,12 @@ class TaskInfolist
                         TextEntry::make('client.name')->label(__('Client'))
                             ->url(fn (Task $record): string => ClientResource::getUrl('view', ['record' => $record->client_id])),
                         TextEntry::make('project.name')->label(__('Project'))
-                            ->url(fn (Task $record): ?string => $record->project_id ? ProjectResource::getUrl('view', ['record' => $record->project_id]) : null)
+                            ->url(fn (Task $record): string => ProjectResource::getUrl('view', ['record' => $record->project_id]))
                             ->visible(fn (Task $record): bool => $record->project_id !== null),
                         TextEntry::make('recurringTask.title')
                             ->label(__('Recurring'))
                             ->visible(fn (Task $record): bool => $record->recurring_task_id !== null)
-                            ->url(fn (Task $record): ?string => $record->recurring_task_id ? RecurringTaskResource::getUrl('edit', ['record' => $record->recurring_task_id]) : null)
+                            ->url(fn (Task $record): string => RecurringTaskResource::getUrl('edit', ['record' => $record->recurring_task_id]))
                             ->helperText(fn (Task $record) => $record->period_start && $record->period_end
                                 ? $record->period_start->format(Period::DATE_FORMAT).' – '.$record->period_end->format(Period::DATE_FORMAT)
                                 : null),
@@ -62,7 +62,7 @@ class TaskInfolist
                                 $record->pricing_type !== PricingType::Fixed => null,
                                 $record->isFixedPriceBilled() => __('Billed'),
                                 $record->isReadyToBill() => __('Ready to bill since :date', [
-                                    'date' => $record->ready_to_bill_at?->setTimezone(Period::timezone())->format(Period::DATE_FORMAT),
+                                    'date' => $record->ready_to_bill_at->setTimezone(Period::timezone())->format(Period::DATE_FORMAT),
                                 ]),
                                 default => __('Not ready to bill yet'),
                             }),
@@ -74,12 +74,12 @@ class TaskInfolist
                             ->helperText(fn (Task $record) => $record->hourly_rate === null ? __('Inherited') : null),
                         TextEntry::make('tracked')
                             ->label(__('Tracked'))
-                            ->state(fn (Task $record): string => Duration::format($record->trackedSeconds()).' h'
-                                .($record->estimated_seconds ? ' / '.Duration::format($record->estimated_seconds).' h' : ''))
+                            ->state(fn (Task $record): string => Duration::hours($record->trackedSeconds())
+                                .($record->estimated_seconds ? ' / '.Duration::hours($record->estimated_seconds) : ''))
                             ->color(fn (Task $record): ?string => $record->estimated_seconds && $record->trackedSeconds() > $record->estimated_seconds ? 'warning' : null),
                         TextEntry::make('effective_rate')
                             ->label(__('Effective rate'))
-                            ->visible(fn (Task $record): bool => $record->pricing_type === PricingType::Fixed && $record->trackedSeconds() > 0)
+                            ->visible(fn (Task $record): bool => $record->effectiveHourlyRate($record->trackedSeconds()) !== null)
                             ->state(fn (Task $record): ?string => ($rate = $record->effectiveHourlyRate($record->trackedSeconds())) === null ? null : self::money($record, $rate).'/h'),
                     ]),
                 Section::make(__('Description'))

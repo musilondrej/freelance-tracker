@@ -38,4 +38,10 @@ final class Duration
 
         return sprintf('%d:%02d', intdiv($seconds, 3600), intdiv($seconds % 3600, 60));
     }
+
+    /** Formats 5400 as "1:30 h". */
+    public static function hours(?int $seconds): string
+    {
+        return self::format($seconds).' h';
+    }
 }

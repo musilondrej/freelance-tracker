@@ -37,7 +37,7 @@ class ClientsTable
                     ->toggleable(),
                 TextColumn::make('hourly_rate')
                     ->label(__('Hourly rate'))
-                    ->formatStateUsing(fn (?int $state, Client $record): ?string => $state === null ? null : Money::format($state, $record->currency))
+                    ->formatStateUsing(fn (int $state, Client $record): string => Money::format($state, $record->currency))
                     ->alignEnd()
                     ->sortable(),
                 TextColumn::make('projects_count')

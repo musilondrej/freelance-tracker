@@ -7,7 +7,6 @@ namespace App\Filament\Widgets;
 use App\Filament\Pages\Unbilled;
 use App\Filament\Support\FinanceStats;
 use App\Livewire\Concerns\RefreshesOnTimerChange;
-use App\Reporting\CurrencyTotals;
 use App\Reporting\FinancialSummary;
 use App\Support\Period;
 use Filament\Support\Icons\Heroicon;
@@ -24,12 +23,9 @@ class FinanceOverview extends StatsOverviewWidget
 
     public bool $onlyUnbilled = false;
 
-    /** @var list<CurrencyTotals>|null */
-    private ?array $totals = null;
-
     protected function getStats(): array
     {
-        $totals = $this->totals();
+        $totals = array_values(FinancialSummary::for(Period::thisMonth()));
 
         if ($totals === []) {
             return [Stat::make(__('Work value'), '—')->description(__('Nothing tracked this month yet'))->icon(Heroicon::OutlinedBriefcase)];
@@ -44,11 +40,5 @@ class FinanceOverview extends StatsOverviewWidget
         $stats['toInvoice']->url(Unbilled::getUrl());
 
         return array_values($stats);
-    }
-
-    /** @return list<CurrencyTotals> */
-    private function totals(): array
-    {
-        return $this->totals ??= array_values(FinancialSummary::for(Period::thisMonth()));
     }
 }

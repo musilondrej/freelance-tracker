@@ -8,6 +8,7 @@ use App\Actions\TimeTracking\StopTimer;
 use App\Filament\Actions\TaskActions;
 use App\Filament\Forms\DurationInput;
 use App\Filament\Resources\TimeEntries\Schemas\TimeEntryForm;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Task;
 use App\Models\TimeEntry;
 use App\Support\Duration;
@@ -25,7 +26,6 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
@@ -39,14 +39,9 @@ class TimerIndicator extends Component implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
+    use RefreshesOnTimerChange;
 
     public bool $large = false;
-
-    #[On('timer-changed')]
-    public function refreshTimer(): void
-    {
-        unset($this->running, $this->recentTasks);
-    }
 
     #[Computed]
     public function running(): ?TimeEntry
@@ -81,17 +76,7 @@ class TimerIndicator extends Component implements HasActions, HasSchemas
 
     public function stop(): void
     {
-        $entry = app(StopTimer::class)->handle();
-
-        $this->dispatch('timer-changed');
-
-        Notification::make()
-            ->success()
-            ->title($entry === null ? __('Timer discarded (under a second)') : __('Saved :duration on :task', [
-                'duration' => Duration::format($entry->duration_seconds),
-                'task' => $entry->task->title,
-            ]))
-            ->send();
+        $this->saved(app(StopTimer::class)->handle());
     }
 
     public function startAction(): Action
@@ -132,26 +117,34 @@ class TimerIndicator extends Component implements HasActions, HasSchemas
     private function startOrLog(array $data): void
     {
         $task = Task::query()->findOrFail((int) $data['task_id']);
-        $startedAt = filled($data['started_at'] ?? null) ? CarbonImmutable::parse((string) $data['started_at']) : null;
+        $startedAt = filled($data['started_at']) ? CarbonImmutable::parse((string) $data['started_at']) : null;
 
-        if (blank($data['ended_at'] ?? null)) {
-            TaskActions::start($task, $this, $data['note'] ?? null, $startedAt);
+        if (blank($data['ended_at'])) {
+            TaskActions::start($task, $this, $data['note'], $startedAt);
 
             return;
         }
 
-        $entry = TimeEntry::query()->create([
+        $this->saved(TimeEntry::query()->create([
             'task_id' => $task->id,
             'started_at' => $startedAt,
             'ended_at' => $data['ended_at'],
-            'note' => $data['note'] ?? null,
-        ]);
+            'note' => $data['note'],
+        ]));
+    }
 
+    /** Null when a timer under a second was discarded. */
+    private function saved(?TimeEntry $entry): void
+    {
         $this->dispatch('timer-changed');
-        Notification::make()->success()->title(__('Saved :duration on :task', [
-            'duration' => Duration::format($entry->duration_seconds),
-            'task' => $task->title,
-        ]))->send();
+
+        Notification::make()
+            ->success()
+            ->title($entry instanceof TimeEntry ? __('Saved :duration on :task', [
+                'duration' => Duration::format($entry->duration_seconds),
+                'task' => $entry->task->title,
+            ]) : __('Timer discarded (under a second)'))
+            ->send();
     }
 
     public function render(): View

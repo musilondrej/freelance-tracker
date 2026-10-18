@@ -24,9 +24,7 @@ class ClientFinanceWidget extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        if (! $this->record instanceof Client) {
-            return [];
-        }
+        assert($this->record instanceof Client);
 
         $currency = $this->record->currency;
         $totals = FinancialSummary::for(Period::allTime(), clientId: $this->record->id)[$currency->value] ?? new CurrencyTotals($currency);

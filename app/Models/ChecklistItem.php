@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $title
  * @property bool $is_done
  * @property int $position
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  */
 #[Fillable(['task_id', 'title', 'is_done', 'position'])]
 class ChecklistItem extends Model
@@ -22,12 +24,6 @@ class ChecklistItem extends Model
         'is_done' => false,
         'position' => 0,
     ];
-
-    /** @return BelongsTo<Task, $this> */
-    public function task(): BelongsTo
-    {
-        return $this->belongsTo(Task::class);
-    }
 
     protected function casts(): array
     {

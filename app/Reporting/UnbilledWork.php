@@ -39,7 +39,7 @@ final class UnbilledWork
     {
         return match ($task->pricing_type) {
             PricingType::Hourly => (int) $task->getAttribute('unbilled_hourly'),
-            PricingType::Fixed => (int) $task->fixed_price,
+            PricingType::Fixed => $task->value(),
             PricingType::NonBillable => 0,
         };
     }

@@ -2,7 +2,7 @@
 
 Correct time and money come first. The UI is a thin layer over a tested domain.
 
-Out of scope: multi-tenancy, roles, VAT, time rounding. Currency conversion exists only for overviews.
+Out of scope: multi-tenancy, roles, VAT, time rounding, currency conversion.
 
 ## Layers
 

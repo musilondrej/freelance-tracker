@@ -20,9 +20,10 @@ class ViewStatement extends ViewRecord
 
     public function getTitle(): string|Htmlable
     {
+        /** @var Statement $record */
         $record = $this->getRecord();
 
-        return $record instanceof Statement ? StatementResource::title($record) : $this->getRecordTitle();
+        return StatementResource::title($record);
     }
 
     /** Refreshes header totals and actions when items change in the relation manager. */

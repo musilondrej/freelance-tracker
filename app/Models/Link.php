@@ -27,7 +27,7 @@ class Link extends Model
     /** The title, or the domain when there is none. */
     public function label(): string
     {
-        return filled($this->title) ? (string) $this->title : $this->host();
+        return filled($this->title) ? $this->title : $this->host();
     }
 
     public function host(): string

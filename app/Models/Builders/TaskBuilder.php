@@ -89,12 +89,16 @@ final class TaskBuilder extends ArchivableBuilder
             ->orWhere('tasks.completed_at', '>=', now()->subDays($doneVisibleDays)));
     }
 
+    /** Open, with a deadline up to the given number of days ahead, overdue ones included. */
+    public function dueBy(int $days): static
+    {
+        return $this->open()->where('tasks.due_on', '<=', Period::localToday()->addDays($days)->toDateString());
+    }
+
     /** Open, with a deadline from today to the given number of days ahead. */
     public function dueWithin(int $days): static
     {
-        $today = Period::localToday();
-
-        return $this->open()->whereBetween('tasks.due_on', [$today->toDateString(), $today->addDays($days)->toDateString()]);
+        return $this->dueBy($days)->where('tasks.due_on', '>=', Period::localToday()->toDateString());
     }
 
     /** Open and past the deadline. Same rule as Task::isOverdue(). */

@@ -39,6 +39,30 @@ final class ProfileUiTest extends TestCase
         Livewire::test(CreateClient::class)->assertSchemaStateSet(['currency' => Currency::EUR, 'hourly_rate' => '65,50']);
     }
 
+    public function test_saves_and_switches_off_alert_preferences_on_the_profile_page(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        Livewire::test(EditProfile::class)
+            ->fillForm(['timer_alert_seconds' => '2h 30m', 'recurring_reminder_days' => 14, 'notify_by_mail' => false])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $user->refresh();
+        $this->assertSame(9000, $user->timer_alert_seconds);
+        $this->assertSame(14, $user->recurring_reminder_days);
+        $this->assertFalse($user->notify_by_mail);
+
+        Livewire::test(EditProfile::class)
+            ->fillForm(['timer_alert_seconds' => null, 'recurring_reminder_days' => null])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNull($user->refresh()->timer_alert_seconds);
+        $this->assertNull($user->refresh()->recurring_reminder_days);
+    }
+
     public function test_statement_pdf_prints_the_supplier_only_when_named(): void
     {
         $entry = TimeEntry::factory()->lasting(3600)->create();

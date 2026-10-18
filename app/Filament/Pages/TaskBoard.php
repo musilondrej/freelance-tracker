@@ -8,9 +8,11 @@ use App\Actions\Tasks\MoveTask;
 use App\Enums\NavigationGroup;
 use App\Enums\TaskStatus;
 use App\Filament\Actions\TaskActions;
-use App\Filament\Pages\Concerns\FiltersByClientAndProject;
 use App\Livewire\Concerns\RefreshesOnTimerChange;
+use App\Models\Builders\ProjectBuilder;
 use App\Models\Builders\TaskBuilder;
+use App\Models\Client;
+use App\Models\Project;
 use App\Models\Task;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -20,6 +22,7 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 use UnitEnum;
 
 /**
@@ -27,7 +30,6 @@ use UnitEnum;
  */
 class TaskBoard extends Page
 {
-    use FiltersByClientAndProject;
     use RefreshesOnTimerChange;
 
     /** Done tasks older than this are hidden from the board. */
@@ -43,6 +45,12 @@ class TaskBoard extends Page
 
     protected Width|string|null $maxContentWidth = Width::Full;
 
+    #[Url(as: 'client')]
+    public ?int $clientId = null;
+
+    #[Url(as: 'project')]
+    public ?int $projectId = null;
+
     public static function getNavigationLabel(): string
     {
         return __('Kanban');
@@ -51,6 +59,33 @@ class TaskBoard extends Page
     public function getTitle(): string
     {
         return __('Kanban');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function clients(): array
+    {
+        return Client::query()->orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function projects(): array
+    {
+        return Project::query()
+            ->when($this->clientId, fn (ProjectBuilder $q, int $id) => $q->where('client_id', $id))
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->all();
+    }
+
+    public function updatedClientId(): void
+    {
+        $this->projectId = null;
     }
 
     /**

@@ -76,7 +76,7 @@ final class FinancialSummaryTest extends TestCase
     public function test_keeps_currencies_apart(): void
     {
         TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create()]);
-        $eur = Client::factory()->eur(6_000)->create();
+        $eur = Client::factory()->eur()->create();
         TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => $eur])]);
 
         $totals = FinancialSummary::for(Period::thisMonth());
@@ -166,7 +166,7 @@ final class FinancialSummaryTest extends TestCase
         $this->assertSame(6_500_000, $stats->totals->workValue);
         $this->assertSame(3_500_000, $stats->project->budgetRemaining());
         $this->assertSame(65, $stats->project->budgetUsagePercent());
-        $this->assertSame(35 * 3600, $stats->trackedSeconds);
+        $this->assertSame(35 * 3600, $stats->totals->trackedSeconds());
         $this->assertSame(50 * 3600, $stats->estimatedSeconds);
         $this->assertSame(BudgetStatus::Ok, $stats->project->budgetStatus());
     }
@@ -196,7 +196,7 @@ final class FinancialSummaryTest extends TestCase
         $this->assertSame(['CZK', 'EUR'], array_keys($days));
         $this->assertSame(['2026-10-15' => 3600], $days['EUR']);
         $this->assertSame(
-            (int) TimeEntry::query()->startedIn(Period::thisMonth())->sum('duration_seconds'),
+            DailyTrackedTime::total(Period::thisMonth()),
             array_sum(array_map(array_sum(...), $days)),
         );
     }
@@ -235,7 +235,9 @@ final class FinancialSummaryTest extends TestCase
     #[DataProvider('budgetStatuses')]
     public function test_derives_the_budget_status_from_the_displayed_percent(int $consumed, int $planned, ?int $budget, ?BudgetStatus $status): void
     {
-        $this->assertSame($status, ProjectStats::status($consumed, $planned, $budget));
+        $project = new Project()->setRawAttributes(['budget' => $budget, 'consumed' => $consumed, 'pending' => $planned - $consumed]);
+
+        $this->assertSame($status, $project->budgetStatus());
     }
 
     /** @return array<string, array{int, int, ?int, ?BudgetStatus}> */

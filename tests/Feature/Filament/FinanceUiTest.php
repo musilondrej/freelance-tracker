@@ -170,8 +170,8 @@ final class FinanceUiTest extends TestCase
 
     public function test_overview_keeps_each_currency_on_its_own_line(): void
     {
-        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->create(['hourly_rate' => 120_000])])]);
-        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->eur()->create(['hourly_rate' => 6_000])])]);
+        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->create()])]);
+        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->eur()->create()])]);
 
         Livewire::test(FinanceOverview::class)->assertSee("1\u{00A0}200\u{00A0}Kč<br>60\u{00A0}€", false);
     }

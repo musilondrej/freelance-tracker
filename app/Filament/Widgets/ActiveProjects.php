@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Enums\ProjectStatus;
 use App\Filament\Resources\Projects\ProjectResource;
 use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Project;
@@ -23,8 +22,7 @@ class ActiveProjects extends TableWidget
         return $table
             ->heading(__('Active projects'))
             ->query(Project::query()
-                ->active()
-                ->where('status', ProjectStatus::Active)
+                ->inProgress()
                 ->with('client')
                 ->withSum('timeEntries', 'duration_seconds')
                 ->withBudgetUsage()

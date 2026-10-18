@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 
 /**
  * @property int $id
@@ -121,6 +122,12 @@ class Task extends Model
         return $this->client->code.'-'.$this->number;
     }
 
+    /** "ACME-12 Login form". */
+    public function keyedTitle(): string
+    {
+        return $this->key().' '.$this->title;
+    }
+
     /**
      * @return array{code: string, number: int}|null null when $key is not a task key
      */
@@ -179,6 +186,7 @@ class Task extends Model
         $this->forceFill(['ready_to_bill_at' => null])->save();
     }
 
+    /** @phpstan-assert-if-true !null $this->ready_to_bill_at */
     public function isReadyToBill(): bool
     {
         return $this->ready_to_bill_at !== null;
@@ -186,11 +194,7 @@ class Task extends Model
 
     public function effectiveHourlyRate(int $trackedSeconds): ?int
     {
-        if ($this->pricing_type !== PricingType::Fixed || $this->fixed_price === null || $trackedSeconds <= 0) {
-            return null;
-        }
-
-        return Money::roundHalfUpDiv($this->fixed_price * 3600, $trackedSeconds);
+        return $this->pricing_type === PricingType::Fixed ? Money::perHour($this->value(), $trackedSeconds) : null;
     }
 
     /** "2/4" done of all checklist items, null without a checklist. Needs TaskBuilder::withChecklistProgress(). */
@@ -200,6 +204,19 @@ class Task extends Model
         $done = (int) $this->getAttribute('checklist_done_count');
 
         return $total > 0 ? $done.'/'.$total : null;
+    }
+
+    /** A checklist with every item done. Needs TaskBuilder::withChecklistProgress(). */
+    public function isChecklistDone(): bool
+    {
+        $total = (int) $this->getAttribute('checklist_items_count');
+
+        return $total > 0 && (int) $this->getAttribute('checklist_done_count') === $total;
+    }
+
+    public function nextChecklistPosition(): int
+    {
+        return (int) $this->checklistItems()->max('position') + 1;
     }
 
     /** Uses `tracked_seconds` from TaskBuilder::withTracking() when loaded, like value(). */
@@ -220,7 +237,7 @@ class Task extends Model
 
         return match ($this->pricing_type) {
             PricingType::Hourly => (int) $this->getAttribute('hourly_value'),
-            PricingType::Fixed => $this->fixed_price ?? 0,
+            PricingType::Fixed => $this->fixed_price ?? throw new LogicException('A fixed-price task always has a price (tasks_fixed_price_required).'),
             PricingType::NonBillable => 0,
         };
     }
@@ -228,6 +245,12 @@ class Task extends Model
     public function isFixedPriceBilled(): bool
     {
         return $this->statementItems()->fixed()->onActiveStatement()->exists();
+    }
+
+    /** The client and project can no longer change: the task has time entries. */
+    public function isPlacementLocked(): bool
+    {
+        return $this->timeEntries()->exists();
     }
 
     /** The pricing type can no longer change: the task is ready to bill or billed. */
@@ -239,6 +262,11 @@ class Task extends Model
     public function isOverdue(): bool
     {
         return $this->status !== TaskStatus::Done && $this->due_on?->lt(Period::localToday()) === true;
+    }
+
+    public function isDueToday(): bool
+    {
+        return $this->status !== TaskStatus::Done && $this->due_on?->eq(Period::localToday()) === true;
     }
 
     /** @return BelongsTo<Client, $this> */
@@ -309,7 +337,7 @@ class Task extends Model
 
     private function guardHistory(): void
     {
-        if ($this->isDirty(['client_id', 'project_id']) && $this->timeEntries()->exists()) {
+        if ($this->isDirty(['client_id', 'project_id']) && $this->isPlacementLocked()) {
             throw DomainRuleViolation::because('A task with time entries cannot be moved to another client or project.');
         }
 

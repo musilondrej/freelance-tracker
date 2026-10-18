@@ -60,7 +60,7 @@ class ChecklistItemsRelationManager extends RelationManager
                     ->createAnother()
                     ->mutateDataUsing(fn (array $data): array => [
                         ...$data,
-                        'position' => (int) $this->task()->checklistItems()->max('position') + 1,
+                        'position' => $this->task()->nextChecklistPosition(),
                     ]),
             ])
             ->recordActions([

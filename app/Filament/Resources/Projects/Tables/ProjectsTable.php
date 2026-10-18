@@ -7,6 +7,7 @@ namespace App\Filament\Resources\Projects\Tables;
 use App\Enums\ProjectStatus;
 use App\Filament\Actions\ArchiveActions;
 use App\Filament\Tables\ArchivedFilter;
+use App\Filament\Tables\ClientFilter;
 use App\Models\Builders\ProjectBuilder;
 use App\Models\Builders\TaskBuilder;
 use App\Models\Project;
@@ -37,7 +38,7 @@ class ProjectsTable
                     ->label(__('Client'))
                     ->searchable()
                     ->sortable()
-                    ->hidden(fn (mixed $livewire): bool => $livewire instanceof RelationManager),
+                    ->hiddenOn(RelationManager::class),
                 TextColumn::make('status')
                     ->label(__('Status'))
                     ->badge()
@@ -67,8 +68,7 @@ class ProjectsTable
                     ->toggleable(),
             ])
             ->filters([
-                SelectFilter::make('client')->label(__('Client'))->relationship('client', 'name')->searchable()->preload()
-                    ->hidden(fn (mixed $livewire): bool => $livewire instanceof RelationManager),
+                ClientFilter::make()->hiddenOn(RelationManager::class),
                 SelectFilter::make('status')->label(__('Status'))->options(ProjectStatus::class)->multiple(),
                 ArchivedFilter::make(),
             ])

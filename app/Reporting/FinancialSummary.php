@@ -59,7 +59,7 @@ final class FinancialSummary
             ->flatMap(fn (array $byCurrency, string $key) => collect($byCurrency)
                 ->reject(fn (CurrencyTotals $totals): bool => $totals->isEmpty())
                 ->map(fn (CurrencyTotals $totals): NamedTotals => new NamedTotals(
-                    $key === '' ? __('No project') : (string) ($names[(int) $key] ?? '#'.$key),
+                    $key === '' ? __('No project') : (string) $names[(int) $key],
                     $totals,
                 ))
                 ->values())
@@ -133,7 +133,7 @@ final class FinancialSummary
         return $query
             ->when($clientId, fn (Builder $q) => $q->where('tasks.client_id', $clientId))
             ->when($projectId, fn (Builder $q) => $q->where('tasks.project_id', $projectId))
-            ->when($pricingType, fn (Builder $q) => $q->where('tasks.pricing_type', $pricingType?->value));
+            ->when($pricingType, fn (Builder $q, PricingType $type) => $q->where('tasks.pricing_type', $type->value));
     }
 
     /**
@@ -172,7 +172,7 @@ final class FinancialSummary
         // SUM(bigint) returns numeric in Postgres, so cast it.
         $rows = $query
             ->groupByRaw($groupColumn === null ? $currencyColumn : "{$groupColumn}, {$currencyColumn}")
-            ->selectRaw("{$groupKey} AS group_key, {$currencyColumn} AS currency, COALESCE(SUM({$valueSql}), 0)::bigint AS total")
+            ->selectRaw("{$groupKey} AS group_key, {$currencyColumn} AS currency, SUM({$valueSql})::bigint AS total")
             ->get();
 
         $result = [];

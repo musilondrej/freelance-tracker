@@ -1,5 +1,4 @@
 @use('App\Support\Period')
-@use('App\Enums\TaskPriority')
 @use('App\Enums\TaskStatus')
 @use('App\Enums\PricingType')
 @use('App\Filament\Resources\Tasks\TaskResource')
@@ -7,7 +6,23 @@
 
 <x-filament-panels::page>
     <div class="flex flex-wrap items-end gap-3">
-        @include('filament.pages.partials.client-project-filters', ['class' => 'w-full sm:w-64'])
+        <x-filament::input.wrapper class="w-full sm:w-64">
+            <x-filament::input.select wire:model.live="clientId" aria-label="{{ __('Client') }}">
+                <option value="">{{ __('All clients') }}</option>
+                @foreach ($this->clients as $id => $name)
+                    <option value="{{ $id }}">{{ $name }}</option>
+                @endforeach
+            </x-filament::input.select>
+        </x-filament::input.wrapper>
+
+        <x-filament::input.wrapper class="w-full sm:w-64">
+            <x-filament::input.select wire:model.live="projectId" aria-label="{{ __('Project') }}">
+                <option value="">{{ __('All projects') }}</option>
+                @foreach ($this->projects as $id => $name)
+                    <option value="{{ $id }}">{{ $name }}</option>
+                @endforeach
+            </x-filament::input.select>
+        </x-filament::input.wrapper>
     </div>
 
     <div class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
@@ -16,7 +31,7 @@
 
             <section class="flex w-72 shrink-0 snap-start flex-col rounded-xl bg-gray-50 ring-1 ring-gray-950/5 dark:bg-white/5 dark:ring-white/10" wire:key="column-{{ $status->value }}">
                 <header class="flex items-center gap-2 px-3 pt-3 pb-2">
-                    <x-filament::icon :icon="$status->getIcon()" @class(['h-4 w-4', 'text-gray-400' => $status === TaskStatus::Backlog]) style="color: var(--{{ $status->getColor() }}-500)" />
+                    <x-filament::icon :icon="$status->getIcon()" class="h-4 w-4" style="color: var(--{{ $status->getColor() }}-500)" />
                     <h2 class="text-sm font-semibold text-gray-950 dark:text-white">{{ $status->getLabel() }}</h2>
                     <span class="ms-auto rounded-md bg-gray-200/70 px-1.5 text-xs font-medium tabular-nums text-gray-600 dark:bg-white/10 dark:text-gray-300">{{ $tasks->count() }}</span>
                 </header>
@@ -61,15 +76,15 @@
                                     </span>
                                 @endif
 
-                                @if ($task->tracked_seconds)
+                                @if ($task->trackedSeconds())
                                     <span class="inline-flex items-center gap-1 tabular-nums">
                                         <x-filament::icon icon="heroicon-m-clock" class="h-3.5 w-3.5" />
-                                        {{ Duration::format((int) $task->tracked_seconds) }}
+                                        {{ Duration::format($task->trackedSeconds()) }}
                                     </span>
                                 @endif
 
-                                @if ($task->checklist_items_count)
-                                    <span @class(['inline-flex items-center gap-1 tabular-nums', 'text-success-600 dark:text-success-400' => $task->checklist_done_count === $task->checklist_items_count])>
+                                @if ($task->checklistProgress())
+                                    <span @class(['inline-flex items-center gap-1 tabular-nums', 'text-success-600 dark:text-success-400' => $task->isChecklistDone()])>
                                         <x-filament::icon icon="heroicon-m-check-circle" class="h-3.5 w-3.5" />
                                         {{ $task->checklistProgress() }}
                                     </span>

@@ -12,6 +12,7 @@ use App\Filament\Actions\TaskActions;
 use App\Filament\Resources\Clients\RelationManagers\TasksRelationManager as ClientTasks;
 use App\Filament\Resources\Projects\RelationManagers\TasksRelationManager as ProjectTasks;
 use App\Filament\Tables\ArchivedFilter;
+use App\Filament\Tables\ClientFilter;
 use App\Models\Builders\TaskBuilder;
 use App\Models\Task;
 use App\Support\Duration;
@@ -71,7 +72,7 @@ class TasksTable
                 TextColumn::make('value')
                     ->label(__('Value'))
                     ->state(fn (Task $record): ?int => $record->value() > 0 ? $record->value() : null)
-                    ->formatStateUsing(fn (?int $state, Task $record): ?string => $state === null ? null : Money::format($state, $record->client->currency))
+                    ->formatStateUsing(fn (int $state, Task $record): string => Money::format($state, $record->client->currency))
                     ->description(fn (Task $record): ?string => match (true) {
                         $record->isReadyToBill() => (string) __('Ready to bill'),
                         $record->pricing_type === PricingType::Hourly => null,
@@ -80,10 +81,9 @@ class TasksTable
                     ->alignEnd(),
             ])
             ->filters([
-                SelectFilter::make('client')->label(__('Client'))->relationship('client', 'name')->searchable()->preload()
-                    ->hidden(fn (mixed $livewire): bool => $livewire instanceof ClientTasks || $livewire instanceof ProjectTasks),
+                ClientFilter::make()->hiddenOn([ClientTasks::class, ProjectTasks::class]),
                 SelectFilter::make('project')->label(__('Project'))->relationship('project', 'name')->searchable()->preload()
-                    ->hidden(fn (mixed $livewire): bool => $livewire instanceof ProjectTasks),
+                    ->hiddenOn(ProjectTasks::class),
                 SelectFilter::make('status')->label(__('Status'))->options(TaskStatus::class)->multiple(),
                 SelectFilter::make('priority')->label(__('Priority'))->options(TaskPriority::class)->multiple(),
                 SelectFilter::make('pricing_type')->label(__('Pricing'))->options(PricingType::class),

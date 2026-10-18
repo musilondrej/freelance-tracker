@@ -34,7 +34,7 @@ class ProjectInfolist
                         TextEntry::make('hourly_rate')
                             ->label(__('Hourly rate'))
                             ->state(fn (Project $record): int => $record->resolveHourlyRate())
-                            ->formatStateUsing(fn (?int $state, Project $record): ?string => $state === null ? null : Money::format($state, $record->client->currency))
+                            ->formatStateUsing(fn (int $state, Project $record): string => Money::format($state, $record->client->currency))
                             ->helperText(fn (Project $record) => $record->hourly_rate === null ? __('Inherited from the client') : null),
                         TextEntry::make('starts_on')->label(__('Start'))->date()->visible(fn (mixed $state): bool => filled($state)),
                         TextEntry::make('due_on')->label(__('Deadline'))->date()->visible(fn (mixed $state): bool => filled($state)),

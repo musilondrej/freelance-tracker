@@ -6,7 +6,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-// Seeders never create user accounts. Use `php artisan make:filament-user`.
+// Seeds nothing. Create accounts with `php artisan make:filament-user`; only the local DemoSeeder adds a demo account.
 class DatabaseSeeder extends Seeder
 {
     public function run(): void {}

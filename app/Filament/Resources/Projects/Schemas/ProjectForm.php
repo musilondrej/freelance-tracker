@@ -8,7 +8,6 @@ use App\Enums\ProjectStatus;
 use App\Filament\Forms\DurationInput;
 use App\Filament\Forms\MoneyInput;
 use App\Filament\Forms\WorkFields;
-use App\Models\Builders\ArchivableBuilder;
 use App\Models\Project;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -30,16 +29,10 @@ class ProjectForm
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')->label(__('Name'))->required()->maxLength(255)->autofocus()->columnSpanFull(),
-                        Select::make('client_id')
-                            ->label(__('Client'))
-                            ->relationship('client', 'name', fn (ArchivableBuilder $query) => $query->active())
-                            ->default(fn (): ?int => request()->integer('client') ?: null)
-                            ->searchable()
-                            ->preload()
-                            ->required()
+                        WorkFields::client()
                             ->live()
-                            ->disabled(fn (?Project $record): bool => $record?->tasks()->exists() ?? false)
-                            ->helperText(fn (?Project $record) => ($record?->tasks()->exists() ?? false) ? __('Locked: the project already has tasks.') : null),
+                            ->disabled(fn (?Project $record): bool => $record?->isClientLocked() ?? false)
+                            ->helperText(fn (?Project $record) => ($record?->isClientLocked() ?? false) ? __('Locked: the project already has tasks.') : null),
                         Select::make('status')
                             ->label(__('Status'))
                             ->options(ProjectStatus::class)
@@ -50,10 +43,8 @@ class ProjectForm
                 Section::make(__('Budget and rate'))
                     ->columnSpan(1)
                     ->schema([
-                        MoneyInput::make('hourly_rate', positive: true)
+                        WorkFields::hourlyRate()
                             ->label(__('Hourly rate'))
-                            ->suffix(fn (Get $get): string => WorkFields::currency($get).'/h')
-                            ->placeholder(fn (Get $get): ?string => WorkFields::inheritedRate($get))
                             ->helperText(__('Empty = client rate.')),
                         MoneyInput::make('budget')
                             ->label(__('Budget'))

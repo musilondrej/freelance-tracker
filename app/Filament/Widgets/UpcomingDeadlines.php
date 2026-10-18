@@ -24,8 +24,7 @@ class UpcomingDeadlines extends TableWidget
             ->query(Task::query()
                 ->active()
                 ->with(['client', 'project'])
-                ->open()
-                ->where('due_on', '<=', Period::localToday()->addDays(self::DAYS_AHEAD)->toDateString())
+                ->dueBy(self::DAYS_AHEAD)
                 ->orderBy('due_on'))
             ->paginated([5, 10])
             ->defaultKeySort(false)
@@ -35,7 +34,7 @@ class UpcomingDeadlines extends TableWidget
                     ->description(fn (Task $record): string => $record->contextLabel()),
                 TextColumn::make('status')->label(__('Status'))->badge(),
                 TextColumn::make('due_on')->label(__('Deadline'))->date()
-                    ->color(fn (Task $record): ?string => $record->isOverdue() ? 'danger' : ($record->due_on?->eq(Period::localToday()) ? 'warning' : null))
+                    ->color(fn (Task $record): ?string => $record->isOverdue() ? 'danger' : ($record->isDueToday() ? 'warning' : null))
                     ->description(fn (Task $record): ?string => $record->due_on?->diffForHumans(Period::localToday(), ['parts' => 1, 'syntax' => CarbonInterface::DIFF_RELATIVE_TO_NOW])),
             ])
             ->emptyStateHeading(__('No deadlines in the next :days days', ['days' => self::DAYS_AHEAD]))

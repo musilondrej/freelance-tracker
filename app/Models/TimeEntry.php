@@ -84,9 +84,17 @@ class TimeEntry extends Model
     /** Seconds since the start. For a finished entry use `duration_seconds`. */
     public function elapsedSeconds(): int
     {
-        return max(0, (int) $this->started_at->diffInSeconds(now()));
+        return (int) $this->started_at->diffInSeconds(now());
     }
 
+    /**
+     * A finished entry has its snapshot and amount (time_entries_snapshot_when_finished).
+     *
+     * @phpstan-assert-if-false !null $this->ended_at
+     * @phpstan-assert-if-false !null $this->pricing_type
+     * @phpstan-assert-if-false !null $this->currency
+     * @phpstan-assert-if-false !null $this->amount
+     */
     public function isRunning(): bool
     {
         return $this->ended_at === null;
