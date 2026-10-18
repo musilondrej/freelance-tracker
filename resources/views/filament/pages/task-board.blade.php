@@ -26,7 +26,7 @@
     </div>
 
     <div class="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
-        @foreach (TaskStatus::cases() as $status)
+        @foreach (TaskStatus::onBoard() as $status)
             @php($tasks = $this->columns[$status->value])
 
             <section class="flex w-72 shrink-0 snap-start flex-col rounded-xl bg-gray-50 ring-1 ring-gray-950/5 dark:bg-white/5 dark:ring-white/10" wire:key="column-{{ $status->value }}">

@@ -204,6 +204,15 @@ final class TasksTest extends TestCase
         ];
     }
 
+    public function test_ongoing_task_stays_open_but_off_the_board(): void
+    {
+        $ongoing = Task::factory()->create(['status' => TaskStatus::Ongoing]);
+        $todo = Task::factory()->create(['status' => TaskStatus::Todo]);
+
+        $this->assertEqualsCanonicalizing([$ongoing->id, $todo->id], Task::query()->open()->pluck('id')->all());
+        $this->assertSame([$todo->id], Task::query()->onBoard(doneVisibleDays: 3)->pluck('id')->all());
+    }
+
     public function test_kanban_move_inserts_before_anchor_or_appends_to_column_end(): void
     {
         [$a, $b, $c] = Task::factory()->count(3)->sequence(fn ($s) => ['status' => TaskStatus::Todo, 'position' => $s->index])->create()->all();
