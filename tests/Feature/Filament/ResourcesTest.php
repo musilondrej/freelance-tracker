@@ -21,6 +21,7 @@ use App\Filament\Resources\Tasks\Pages\ViewTask;
 use App\Filament\Resources\Tasks\RelationManagers\TimeEntriesRelationManager;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Widgets\ActiveProjects;
+use App\Filament\Widgets\RecentTimeEntries;
 use App\Filament\Widgets\UpcomingDeadlines;
 use App\Filament\Widgets\WorkStats;
 use App\Livewire\TimerIndicator;
@@ -83,6 +84,7 @@ final class ResourcesTest extends TestCase
         // Lazily loaded widgets and relation managers.
         Livewire::test(UpcomingDeadlines::class)->assertOk();
         Livewire::test(ActiveProjects::class)->assertOk();
+        Livewire::test(RecentTimeEntries::class)->assertOk();
         Livewire::test(ProjectsRelationManager::class, ['ownerRecord' => $client, 'pageClass' => ViewClient::class])->assertOk();
         Livewire::test(ClientTasksRelationManager::class, ['ownerRecord' => $client, 'pageClass' => ViewClient::class])->assertOk();
         Livewire::test(StatementsRelationManager::class, ['ownerRecord' => $client, 'pageClass' => ViewClient::class])->assertOk();
