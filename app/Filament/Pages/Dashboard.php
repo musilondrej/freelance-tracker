@@ -7,6 +7,7 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\ActiveProjects;
 use App\Filament\Widgets\ActiveTimer;
 use App\Filament\Widgets\DailyTrackedTimeChart;
+use App\Filament\Widgets\DailyWorkValueChart;
 use App\Filament\Widgets\FinanceOverview;
 use App\Filament\Widgets\RecentTimeEntries;
 use App\Filament\Widgets\UpcomingDeadlines;
@@ -22,6 +23,7 @@ class Dashboard extends BaseDashboard
             WorkStats::class,
             FinanceOverview::class,
             DailyTrackedTimeChart::class,
+            DailyWorkValueChart::class,
             RecentTimeEntries::class,
             UpcomingDeadlines::class,
             ActiveProjects::class,
