@@ -7,7 +7,8 @@
 
 <div
     wire:poll.60s
-    @class(['flex items-center', 'w-full' => $large])
+    {{-- Same spacing as the other topbar items. --}}
+    @class(['flex items-center', 'w-full' => $large, 'gap-x-4' => ! $large])
     @unless ($large)
         {{-- Other tabs refresh at once when the timer starts or stops here, and the other way round. --}}
         x-data="{
@@ -115,7 +116,7 @@
     @endif
 
     @if (! $large && $this->recentTasks->isNotEmpty())
-        <x-filament::dropdown placement="bottom-end" width="sm" class="ms-1">
+        <x-filament::dropdown placement="bottom-end" width="sm">
             <x-slot name="trigger">
                 <x-filament::icon-button
                     icon="heroicon-o-arrow-path"
