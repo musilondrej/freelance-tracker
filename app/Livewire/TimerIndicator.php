@@ -23,6 +23,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -30,6 +31,9 @@ use Livewire\Component;
 /**
  * Global timer in the topbar and on the dashboard. The server keeps the time;
  * the browser only updates the display.
+ *
+ * @property-read ?TimeEntry $running
+ * @property-read Collection<int, Task> $recentTasks
  */
 class TimerIndicator extends Component implements HasActions, HasSchemas
 {
@@ -41,13 +45,38 @@ class TimerIndicator extends Component implements HasActions, HasSchemas
     #[On('timer-changed')]
     public function refreshTimer(): void
     {
-        unset($this->running);
+        unset($this->running, $this->recentTasks);
     }
 
     #[Computed]
     public function running(): ?TimeEntry
     {
         return TimeEntry::query()->running()->with(['task.client', 'task.project'])->first();
+    }
+
+    /**
+     * Quick restart in the topbar: the last tracked open tasks, without the running one.
+     *
+     * @return Collection<int, Task>
+     */
+    #[Computed]
+    public function recentTasks(): Collection
+    {
+        return Task::query()
+            ->active()
+            ->open()
+            ->has('timeEntries')
+            ->whereKeyNot($this->running?->task_id)
+            ->with(['client', 'project'])
+            ->latestTrackedFirst()
+            ->limit(7)
+            ->get();
+    }
+
+    public function restartAction(): Action
+    {
+        return TaskActions::startTimer()
+            ->record(fn (array $arguments): ?Task => Task::query()->find((int) ($arguments['task'] ?? 0)));
     }
 
     public function stop(): void
@@ -139,8 +168,7 @@ class TimerIndicator extends Component implements HasActions, HasSchemas
             ->active()
             ->open()
             ->with(['client', 'project'])
-            ->withMax('timeEntries as last_tracked_at', 'started_at')
-            ->orderByRaw('last_tracked_at DESC NULLS LAST')
+            ->latestTrackedFirst()
             ->orderByDesc('updated_at')
             ->limit(200)
             ->get()
