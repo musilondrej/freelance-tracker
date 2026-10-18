@@ -31,6 +31,15 @@ enum PricingType: string implements HasColor, HasIcon, HasLabel
         };
     }
 
+    public function chartColor(): string
+    {
+        return match ($this) {
+            self::Hourly => '#2a78d6',
+            self::Fixed => '#eb6834',
+            self::NonBillable => '#898781',
+        };
+    }
+
     public function getIcon(): Heroicon
     {
         return match ($this) {

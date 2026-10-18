@@ -44,12 +44,24 @@ class DailyTrackedTimeChart extends ChartWidget
         return 'bar';
     }
 
-    protected function getData(): array
+    /**
+     * @return array{Period, Collection<int, CarbonImmutable>} the last DAYS local days, oldest first
+     */
+    protected function lastDays(): array
     {
         $today = Period::localToday();
         $from = $today->subDays(self::DAYS - 1);
-        $days = Collection::times(self::DAYS, fn (int $day): CarbonImmutable => $from->addDays($day - 1));
-        $seconds = DailyTrackedTime::for(Period::between($from->toDateString(), $today->toDateString()));
+
+        return [
+            Period::between($from->toDateString(), $today->toDateString()),
+            Collection::times(self::DAYS, fn (int $day): CarbonImmutable => $from->addDays($day - 1)),
+        ];
+    }
+
+    protected function getData(): array
+    {
+        [$period, $days] = $this->lastDays();
+        $seconds = DailyTrackedTime::for($period);
 
         return [
             'labels' => $days->map(fn (CarbonImmutable $day): string => $day->format(Period::SHORT_DATE_FORMAT))->all(),

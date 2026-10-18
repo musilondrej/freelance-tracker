@@ -10,11 +10,14 @@ use App\Actions\Billing\SendStatement;
 use App\Enums\BudgetStatus;
 use App\Enums\Currency;
 use App\Models\Client;
+use App\Models\ExchangeRate;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TimeEntry;
 use App\Reporting\CurrencyTotals;
+use App\Reporting\CzkTotal;
 use App\Reporting\DailyTrackedTime;
+use App\Reporting\DailyWorkValue;
 use App\Reporting\FinancialSummary;
 use App\Reporting\NamedTotals;
 use App\Reporting\ProjectStats;
@@ -198,6 +201,24 @@ final class FinancialSummaryTest extends TestCase
             (int) TimeEntry::query()->startedIn(Period::thisMonth())->sum('duration_seconds'),
             array_sum(array_map(array_sum(...), $days)),
         );
+    }
+
+    public function test_daily_work_value_includes_fixed_prices_and_sums_to_the_monthly_value_in_czk(): void
+    {
+        $this->briefScenario();
+        // 22:30 UTC on the 14th is 00:30 on the 15th in Prague.
+        $eurTask = Task::factory()->create(['client_id' => Client::factory()->eur()->create()]);
+        TimeEntry::factory()->lasting(3600, CarbonImmutable::parse('2026-10-14 22:30', 'UTC'))->create(['task_id' => $eurTask]);
+
+        ExchangeRate::query()->create(['rate_on' => '2026-10-14', 'currency' => 'EUR', 'amount' => 1, 'rate' => 25_000]);
+        $days = DailyWorkValue::inCzk(Period::thisMonth());
+
+        $this->assertNotNull($days);
+        // 60 € × 25 = 1 500 Kč.
+        $this->assertSame(['2026-10-13' => 600_000, '2026-10-15' => 150_000], $days['hourly']);
+        $this->assertSame(['2026-10-15' => 400_000], $days['fixed']);
+        $monthly = collect(FinancialSummary::for(Period::thisMonth()))->map(fn (CurrencyTotals $totals): int => $totals->workValue)->all();
+        $this->assertSame(CzkTotal::of($monthly)?->amount, array_sum(array_map(array_sum(...), $days)));
     }
 
     public function test_orders_projects_by_the_share_of_the_budget_consumed(): void
