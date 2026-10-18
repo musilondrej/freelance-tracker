@@ -4,16 +4,55 @@
     $entry = $this->running;
 @endphp
 
-<div wire:poll.60s @class(['flex items-center', 'w-full' => $large])>
+<div
+    wire:poll.60s
+    @class(['flex items-center', 'w-full' => $large])
+    @unless ($large)
+        {{-- Other tabs refresh at once when the timer starts or stops here, and the other way round. --}}
+        x-data="{
+            channel: new BroadcastChannel('timer'),
+            relaying: false,
+            init() {
+                this.channel.onmessage = () => {
+                    this.relaying = true
+                    Livewire.dispatch('timer-changed')
+                    this.relaying = false
+                }
+            },
+            destroy() { this.channel.close() },
+        }"
+        x-on:timer-changed.window="relaying || channel.postMessage(null)"
+    @endunless
+>
     @if ($entry)
         <div
+            wire:key="running-{{ $entry->id }}"
             x-data="{
                 start: {{ $entry->started_at->getTimestampMs() }},
                 offset: {{ now()->getTimestampMs() }} - Date.now(),
                 now: Date.now(),
                 timer: null,
-                init() { this.timer = setInterval(() => this.now = Date.now(), 1000) },
-                destroy() { clearInterval(this.timer) },
+                prefix: '',
+                init() {
+                    this.tick()
+                    this.timer = setInterval(() => this.tick(), 1000)
+                },
+                destroy() {
+                    clearInterval(this.timer)
+                    this.retitle('')
+                },
+                tick() {
+                    this.now = Date.now()
+                    @unless ($large)
+                        this.retitle(this.elapsed + ' · ' + @js($entry->task->title) + ' · ')
+                    @endunless
+                },
+                {{-- The tab shows the running time; page navigation replaces the title, so strip only our own prefix. --}}
+                retitle(prefix) {
+                    const page = document.title.startsWith(this.prefix) ? document.title.slice(this.prefix.length) : document.title
+                    this.prefix = prefix
+                    document.title = prefix + page
+                },
                 get elapsed() {
                     const s = Math.max(0, Math.floor((this.now + this.offset - this.start) / 1000))
                     const pad = (n) => String(n).padStart(2, '0')
