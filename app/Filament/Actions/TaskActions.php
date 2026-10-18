@@ -18,17 +18,35 @@ final class TaskActions
 {
     public static function startTimer(): Action
     {
-        return Action::make('startTimer')
+        return self::confirmSwitch(Action::make('startTimer'))
             ->label(__('Start timer'))
             ->icon(Heroicon::OutlinedPlay)
             ->color('success')
             ->visible(fn (Task $record): bool => ! $record->isArchived())
-            // A custom heading alone would open the modal every time. Ask only when switching.
+            ->action(fn (Task $record, Component $livewire) => self::start($record, $livewire));
+    }
+
+    /** Starts a new timer on the entry's task with the same note. */
+    public static function continueEntry(): Action
+    {
+        return self::confirmSwitch(Action::make('continueEntry'))
+            ->label(__('Continue'))
+            ->tooltip(__('Continue'))
+            ->iconButton()
+            ->icon(Heroicon::OutlinedPlay)
+            ->color('gray')
+            ->hidden(fn (TimeEntry $record): bool => $record->isRunning() || $record->task->isArchived())
+            ->action(fn (TimeEntry $record, Component $livewire) => self::start($record->task, $livewire, $record->note));
+    }
+
+    private static function confirmSwitch(Action $action): Action
+    {
+        // A custom heading alone would open the modal every time. Ask only when switching.
+        return $action
             ->requiresConfirmation()
             ->modalHidden(fn (): bool => ! TimeEntry::query()->running()->exists())
             ->modalHeading(__('Switch the timer?'))
-            ->modalDescription(__('Another timer is running. It will be stopped and saved.'))
-            ->action(fn (Task $record, Component $livewire) => self::start($record, $livewire));
+            ->modalDescription(__('Another timer is running. It will be stopped and saved.'));
     }
 
     /** Starts the timer, or switches to this task when another timer runs. */

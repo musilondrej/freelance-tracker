@@ -6,6 +6,7 @@ namespace App\Filament\Resources\TimeEntries\Tables;
 
 use App\Enums\PricingType;
 use App\Filament\Actions\StatementActions;
+use App\Filament\Actions\TaskActions;
 use App\Filament\Resources\Tasks\RelationManagers\TimeEntriesRelationManager;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Resources\TimeEntries\Schemas\TimeEntryForm;
@@ -124,6 +125,7 @@ class TimeEntriesTable
                     ),
             ])
             ->recordActions([
+                TaskActions::continueEntry(),
                 ActionGroup::make([
                     EditAction::make()
                         ->mutateDataUsing(fn (array $data): array => TimeEntryForm::prepare($data))
