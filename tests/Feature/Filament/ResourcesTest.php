@@ -212,6 +212,43 @@ final class ResourcesTest extends TestCase
         $this->assertSame(['ACME-1 Login form'], TaskResource::getGlobalSearchResults('ACME-1')->map->title->all());
     }
 
+    public function test_task_list_hides_ongoing_tasks_until_filtered(): void
+    {
+        $ongoing = Task::factory()->create(['is_ongoing' => true]);
+        $regular = Task::factory()->create();
+
+        Livewire::test(ListTasks::class)
+            ->assertCanSeeTableRecords([$regular])
+            ->assertCanNotSeeTableRecords([$ongoing])
+            ->filterTable('ongoing', ['show' => true])
+            ->assertCanSeeTableRecords([$ongoing, $regular]);
+    }
+
+    public function test_task_list_hides_done_tasks_until_the_switch_is_on(): void
+    {
+        $done = Task::factory()->create(['status' => TaskStatus::Done]);
+        $open = Task::factory()->create();
+
+        Livewire::test(ListTasks::class)
+            ->assertCanSeeTableRecords([$open])
+            ->assertCanNotSeeTableRecords([$done])
+            ->filterTable('done', ['show' => true])
+            ->assertCanSeeTableRecords([$done, $open]);
+    }
+
+    public function test_lists_hide_archived_records_until_the_switch_is_on(): void
+    {
+        $archived = Task::factory()->create();
+        $archived->archive();
+        $active = Task::factory()->create();
+
+        Livewire::test(ListTasks::class)
+            ->assertCanSeeTableRecords([$active])
+            ->assertCanNotSeeTableRecords([$archived])
+            ->filterTable('archived', ['show' => true])
+            ->assertCanSeeTableRecords([$archived, $active]);
+    }
+
     public function test_adds_a_note_on_a_project_and_shows_it_in_the_client_history(): void
     {
         $project = Project::factory()->create(['name' => 'Portal']);

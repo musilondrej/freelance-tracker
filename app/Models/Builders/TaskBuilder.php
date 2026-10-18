@@ -35,6 +35,12 @@ final class TaskBuilder extends ArchivableBuilder
         return $this->where('tasks.status', '!=', TaskStatus::Done);
     }
 
+    /** Leaves out ongoing tasks, which serve only for time tracking. */
+    public function withoutOngoing(): static
+    {
+        return $this->where('tasks.is_ongoing', false);
+    }
+
     /** Fixed-price tasks marked as ready to bill. Their price counts as work value from then on. */
     public function readyFixed(): static
     {
@@ -84,7 +90,7 @@ final class TaskBuilder extends ArchivableBuilder
     /** What the kanban shows: open tasks that are not ongoing, plus done ones for a few days so a finished card does not vanish at once. */
     public function onBoard(int $doneVisibleDays): static
     {
-        return $this->where('tasks.is_ongoing', false)
+        return $this->withoutOngoing()
             ->where(fn (self $query) => $query
                 ->open()
                 ->orWhere('tasks.completed_at', '>=', now()->subDays($doneVisibleDays)));
