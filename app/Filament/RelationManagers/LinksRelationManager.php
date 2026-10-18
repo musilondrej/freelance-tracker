@@ -57,7 +57,7 @@ class LinksRelationManager extends RelationManager
 
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['project', 'task.client']))
-            ->defaultSort(fn (Builder $query) => $query->orderByDesc('id'))
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('title')
                     ->label(__('Link'))
@@ -71,11 +71,7 @@ class LinksRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label(__('Add link'))
-                    ->modalHeading(__('Add link'))
-                    ->mutateDataUsing(fn (array $data): array => [
-                        ...$data,
-                        'client_id' => $owner instanceof Client ? $owner->id : $owner->getAttribute('client_id'),
-                    ]),
+                    ->modalHeading(__('Add link')),
             ])
             ->recordActions([
                 ActionGroup::make([

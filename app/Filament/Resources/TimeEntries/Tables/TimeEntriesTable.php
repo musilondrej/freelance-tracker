@@ -10,6 +10,7 @@ use App\Filament\Actions\TaskActions;
 use App\Filament\Resources\Tasks\RelationManagers\TimeEntriesRelationManager;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Resources\TimeEntries\Schemas\TimeEntryForm;
+use App\Filament\Tables\ClientFilter;
 use App\Models\Builders\TimeEntryBuilder;
 use App\Models\TimeEntry;
 use App\Support\Duration;
@@ -31,7 +32,6 @@ class TimeEntriesTable
 {
     public static function configure(Table $table): Table
     {
-        $inTask = fn (mixed $livewire): bool => $livewire instanceof TimeEntriesRelationManager;
         // Entries on a statement cannot change. A running entry is stopped only by the timer.
         $readOnly = fn (TimeEntry $record): bool => $record->isRunning() || (bool) $record->getAttribute('is_allocated');
 
@@ -52,7 +52,7 @@ class TimeEntriesTable
                     ->url(fn (TimeEntry $record): string => TaskResource::getUrl('view', ['record' => $record->task_id]))
                     ->searchable()
                     ->wrap()
-                    ->hidden($inTask),
+                    ->hiddenOn(TimeEntriesRelationManager::class),
                 TextInputColumn::make('note')
                     ->label(__('Note'))
                     ->placeholder(__('Add a note'))
@@ -62,22 +62,22 @@ class TimeEntriesTable
                     ->toggleable(),
                 TextColumn::make('duration_seconds')
                     ->label(__('Duration'))
-                    ->formatStateUsing(fn (?int $state): string => Duration::format($state))
+                    ->formatStateUsing(fn (int $state): string => Duration::format($state))
                     ->placeholder(__('Running'))
                     ->alignEnd()
                     ->sortable()
                     ->summarize(Sum::make()->label(__('Total'))->formatStateUsing(fn (mixed $state): string => Duration::format((int) $state))),
                 TextColumn::make('hourly_rate')
                     ->label(__('Rate'))
-                    ->formatStateUsing(fn (?int $state, TimeEntry $record): ?string => $state === null || $record->currency === null ? null : Money::format($state, $record->currency))
+                    ->formatStateUsing(fn (int $state, TimeEntry $record): ?string => $record->currency === null ? null : Money::format($state, $record->currency))
                     ->alignEnd()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('amount')
                     ->label(__('Value'))
                     ->state(fn (TimeEntry $record): ?string => match (true) {
-                        $record->isRunning() || $record->currency === null => null,
-                        $record->pricing_type === PricingType::Hourly => Money::format((int) $record->amount, $record->currency),
-                        default => $record->pricing_type?->getLabel(),
+                        $record->isRunning() => null,
+                        $record->pricing_type === PricingType::Hourly => Money::format($record->amount, $record->currency),
+                        default => $record->pricing_type->getLabel(),
                     })
                     ->color(fn (TimeEntry $record): ?string => $record->pricing_type === PricingType::Hourly ? null : 'gray')
                     ->description(fn (TimeEntry $record): ?string => $record->getAttribute('is_allocated') ? (string) __('On statement') : null)
@@ -99,23 +99,18 @@ class TimeEntriesTable
                     ->indicateUsing(fn (array $data): ?string => filled($data['from'] ?? null) || filled($data['until'] ?? null)
                         ? __('Period').': '.($data['from'] ?? '…').' – '.($data['until'] ?? '…')
                         : null),
-                SelectFilter::make('client')
-                    ->label(__('Client'))
-                    ->relationship('task.client', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->hidden($inTask),
+                ClientFilter::make('task.client')->hiddenOn(TimeEntriesRelationManager::class),
                 SelectFilter::make('project')
                     ->label(__('Project'))
                     ->relationship('task.project', 'name')
                     ->searchable()
                     ->preload()
-                    ->hidden($inTask),
+                    ->hiddenOn(TimeEntriesRelationManager::class),
                 SelectFilter::make('task')
                     ->label(__('Task'))
                     ->relationship('task', 'title')
                     ->searchable()
-                    ->hidden($inTask),
+                    ->hiddenOn(TimeEntriesRelationManager::class),
                 SelectFilter::make('pricing_type')->label(__('Pricing'))->options(PricingType::class),
                 TernaryFilter::make('billed')
                     ->label(__('On statement'))

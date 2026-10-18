@@ -34,4 +34,10 @@ final class DailyTrackedTime
 
         return $result;
     }
+
+    /** Seconds of the whole period, all currencies together. */
+    public static function total(Period $period): int
+    {
+        return (int) TimeEntry::query()->startedIn($period)->sum('duration_seconds');
+    }
 }

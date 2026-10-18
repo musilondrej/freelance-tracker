@@ -71,7 +71,7 @@ final class StatementActions
             ->label(__('Cancel statement'))
             ->icon(Heroicon::OutlinedXCircle)
             ->color('danger')
-            ->visible(fn (Statement $record): bool => $record->status === StatementStatus::Sent)
+            ->visible(fn (Statement $record): bool => $record->isSent())
             ->requiresConfirmation()
             ->modalDescription(__('The statement stays in history but stops counting. Its time entries and fixed prices become billable again.'))
             ->action(fn (Statement $record, CancelStatement $cancel) => $cancel->handle($record))
@@ -144,7 +144,7 @@ final class StatementActions
                 $records->load('task');
                 $client = self::singleClient($records->pluck('task.client_id')->unique()->all());
 
-                $statement = filled($data['statement_id'] ?? null)
+                $statement = filled($data['statement_id'])
                     ? Statement::query()->findOrFail((int) $data['statement_id'])
                     : $createStatement->handle($client);
 
@@ -171,7 +171,7 @@ final class StatementActions
      */
     private static function until(array $data): ?CarbonImmutable
     {
-        return filled($data['until'] ?? null) ? Period::day((string) $data['until'])->end : null;
+        return filled($data['until']) ? Period::day((string) $data['until'])->end : null;
     }
 
     /**

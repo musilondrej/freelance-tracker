@@ -25,9 +25,7 @@ class ProjectStatsWidget extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        if (! $this->record instanceof Project) {
-            return [];
-        }
+        assert($this->record instanceof Project);
 
         $stats = ProjectStats::for($this->record);
         $project = $stats->project;
@@ -55,10 +53,10 @@ class ProjectStatsWidget extends StatsOverviewWidget
             Stat::make(__('Invoiced'), $money($totals->billed))
                 ->description(__('To invoice: :amount', ['amount' => $money($totals->unbilled)]))
                 ->icon(Heroicon::OutlinedBanknotes),
-            Stat::make(__('Time'), Duration::format($stats->trackedSeconds).' h')
+            Stat::make(__('Time'), Duration::hours($totals->trackedSeconds()))
                 ->description(($stats->estimatedSeconds !== null ? __('Estimate: :time h', ['time' => Duration::format($stats->estimatedSeconds)]).' · ' : '')
                     .__(':open open / :done done tasks', ['open' => $stats->openTaskCount, 'done' => $stats->doneTaskCount]))
-                ->color($stats->estimatedSeconds !== null && $stats->trackedSeconds > $stats->estimatedSeconds ? 'warning' : 'gray')
+                ->color($stats->estimatedSeconds !== null && $totals->trackedSeconds() > $stats->estimatedSeconds ? 'warning' : 'gray')
                 ->icon(Heroicon::OutlinedClock),
         ];
     }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Actions;
 
+use App\Filament\Support\CsvExport;
 use App\Models\Task;
 use App\Models\TimeEntry;
-use App\Reporting\CsvExport;
 use App\Support\Duration;
 use App\Support\Period;
 use Closure;
@@ -74,7 +74,7 @@ final class ExportActions
             CsvExport::amount($entry->hourly_rate),
             CsvExport::amount($entry->amount),
             $entry->currency?->value,
-            (string) ($entry->getAttribute('is_allocated') ? __('Yes') : __('No')),
+            $entry->getAttribute('is_allocated') ? __('Yes') : __('No'),
         ];
     }
 

@@ -7,6 +7,7 @@ namespace App\Filament\Resources\RecurringTasks\Tables;
 use App\Enums\PricingType;
 use App\Filament\Actions\ArchiveActions;
 use App\Filament\Tables\ArchivedFilter;
+use App\Filament\Tables\ClientFilter;
 use App\Models\Builders\RecurringTaskBuilder;
 use App\Models\RecurringTask;
 use App\Support\Money;
@@ -15,8 +16,8 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use LogicException;
 
 class RecurringTasksTable
 {
@@ -40,7 +41,7 @@ class RecurringTasksTable
                 TextColumn::make('price')
                     ->label(__('Price per period'))
                     ->state(fn (RecurringTask $record): string => match ($record->pricing_type) {
-                        PricingType::Fixed => Money::format($record->fixed_price ?? 0, $record->client->currency),
+                        PricingType::Fixed => Money::format($record->fixed_price ?? throw new LogicException('A fixed-price recurring task always has a price (recurring_tasks_fixed_price_required).'), $record->client->currency),
                         default => $record->pricing_type->getLabel(),
                     })
                     ->description(fn (RecurringTask $record): ?string => $record->pricing_type === PricingType::Fixed ? $record->billing_timing->getLabel() : null)
@@ -52,7 +53,7 @@ class RecurringTasksTable
                 TextColumn::make('tasks_count')->label(__('Generated'))->alignEnd(),
             ])
             ->filters([
-                SelectFilter::make('client')->label(__('Client'))->relationship('client', 'name')->searchable()->preload(),
+                ClientFilter::make(),
                 ArchivedFilter::make(),
             ])
             ->recordActions([

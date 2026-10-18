@@ -24,8 +24,8 @@ class ClientFactory extends Factory
         ];
     }
 
-    public function eur(int $hourlyRate = 6_000): static
+    public function eur(): static
     {
-        return $this->state(['currency' => Currency::EUR, 'hourly_rate' => $hourlyRate]);
+        return $this->state(['currency' => Currency::EUR, 'hourly_rate' => 6_000]); // 60,00 €/h
     }
 }

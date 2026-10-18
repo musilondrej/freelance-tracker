@@ -13,12 +13,25 @@ use App\Models\Project;
 use App\Support\Money;
 use Closure;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Model;
 
 final class WorkFields
 {
+    /** Active clients; `?client=` in the URL preselects one. */
+    public static function client(): Select
+    {
+        return Select::make('client_id')
+            ->label(__('Client'))
+            ->relationship('client', 'name', fn (ArchivableBuilder $query) => $query->active())
+            ->default(fn (): ?int => request()->integer('client') ?: null)
+            ->searchable()
+            ->preload()
+            ->required();
+    }
+
     /**
      * Linked client and project selects. The project list follows the client, and picking a project sets its client.
      *
@@ -28,13 +41,8 @@ final class WorkFields
     public static function clientAndProject(Closure $locked, string $lockedMessage): array
     {
         return [
-            Select::make('client_id')
-                ->label(__('Client'))
-                ->relationship('client', 'name', fn (ArchivableBuilder $query) => $query->active())
+            self::client()
                 ->default(fn (): ?int => request()->integer('client') ?: self::project(request()->integer('project'))?->client_id)
-                ->searchable()
-                ->preload()
-                ->required()
                 ->live()
                 ->afterStateUpdated(function (Set $set, Get $get, mixed $state): void {
                     $project = self::project($get('project_id'));
@@ -66,6 +74,14 @@ final class WorkFields
         ];
     }
 
+    /** Own rate; empty inherits the rate shown as the placeholder. */
+    public static function hourlyRate(): TextInput
+    {
+        return MoneyInput::make('hourly_rate', positive: true)
+            ->suffix(fn (Get $get): string => self::currency($get).'/h')
+            ->placeholder(fn (Get $get): ?string => self::inheritedRate($get));
+    }
+
     public static function pricing(Get $get): ?PricingType
     {
         $state = $get('pricing_type');
@@ -75,7 +91,7 @@ final class WorkFields
 
     public static function currency(Get $get): string
     {
-        return self::client($get('client_id'))?->currency->value ?? '';
+        return self::findClient($get('client_id'))?->currency->value ?? '';
     }
 
     /** "CZK/h" after a rate input, from a currency field's state (enum or code). */
@@ -83,13 +99,13 @@ final class WorkFields
     {
         $code = $currency instanceof Currency ? $currency->value : (string) $currency;
 
-        return $code === '' ? '/h' : $code.'/h';
+        return $code.'/h';
     }
 
     /** Rate the task inherits from the project or client, formatted for a placeholder. */
     public static function inheritedRate(Get $get): ?string
     {
-        $client = self::client($get('client_id'));
+        $client = self::findClient($get('client_id'));
 
         if (! $client instanceof Client) {
             return null;
@@ -98,7 +114,7 @@ final class WorkFields
         return Money::toDecimal(self::project($get('project_id'))?->resolveHourlyRate() ?? $client->hourly_rate);
     }
 
-    private static function client(mixed $clientId): ?Client
+    private static function findClient(mixed $clientId): ?Client
     {
         return is_numeric($clientId) && (int) $clientId > 0 ? Client::query()->find((int) $clientId) : null;
     }

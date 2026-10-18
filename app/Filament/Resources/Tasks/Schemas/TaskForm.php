@@ -34,7 +34,7 @@ class TaskForm
                     ->schema([
                         TextInput::make('title')->label(__('Title'))->required()->maxLength(255)->autofocus()->columnSpanFull(),
                         ...WorkFields::clientAndProject(
-                            fn (?Model $record): bool => $record instanceof Task && $record->timeEntries()->exists(),
+                            fn (?Model $record): bool => $record instanceof Task && $record->isPlacementLocked(),
                             __('Locked: the task already has time entries.'),
                         ),
                         MarkdownField::make('description')->label(__('Description'))->columnSpanFull(),
@@ -63,16 +63,14 @@ class TaskForm
                             ->disabled(fn (?Task $record): bool => $record?->isPricingLocked() ?? false)
                             ->helperText(fn (?Task $record) => ($record?->isPricingLocked() ?? false) ? __('Locked: the task is ready to bill or billed.') : null)
                             ->columnSpanFull(),
-                        MoneyInput::make('hourly_rate', positive: true)
+                        WorkFields::hourlyRate()
                             ->label(__('Own hourly rate'))
                             ->visible(fn (Get $get): bool => WorkFields::pricing($get) === PricingType::Hourly)
-                            ->suffix(fn (Get $get): string => WorkFields::currency($get).'/h')
-                            ->placeholder(fn (Get $get): ?string => WorkFields::inheritedRate($get))
                             ->helperText(__('Empty = project or client rate. Changing it does not affect existing entries.')),
                         MoneyInput::make('fixed_price', positive: true)
                             ->label(__('Fixed price'))
                             ->visible(fn (Get $get): bool => WorkFields::pricing($get) === PricingType::Fixed)
-                            ->required(fn (Get $get): bool => WorkFields::pricing($get) === PricingType::Fixed)
+                            ->required()
                             ->suffix(fn (Get $get): string => WorkFields::currency($get))
                             ->disabled(fn (?Task $record): bool => $record?->isReadyToBill() ?? false)
                             ->helperText(fn (?Task $record) => ($record?->isReadyToBill() ?? false) ? __('Locked while the task is ready to bill.') : null),

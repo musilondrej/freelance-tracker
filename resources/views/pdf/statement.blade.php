@@ -36,7 +36,7 @@
     <h1>{{ __('Statement of work') }} #{{ $statement->id }}</h1>
     <table class="parties">
         <tr>
-            @if (filled($supplier?->billing_name))
+            @if (filled($supplier->billing_name))
                 <td>
                     <span class="muted">{{ __('Supplier') }}</span><br>
                     <strong>{{ $supplier->billing_name }}</strong><br>
@@ -55,7 +55,7 @@
                 </td>
             @endif
             <td>
-                @if (filled($supplier?->billing_name))
+                @if (filled($supplier->billing_name))
                     <span class="muted">{{ __('Customer') }}</span><br>
                 @endif
                 <strong>{{ $client->company_name ?? $client->name }}</strong><br>
@@ -90,14 +90,14 @@
             @foreach ($statement->items as $item)
                 <tr class="item">
                     <td>{{ $item->task->key() }} · {{ $item->description }}</td>
-                    <td class="num">{{ $item->billed_seconds > 0 ? Duration::format($item->billed_seconds).' h' : '' }}</td>
-                    <td class="num">{{ $item->pricing_type === PricingType::Hourly ? $money((int) $item->unit_price).'/h' : __('Fixed price') }}</td>
+                    <td class="num">{{ $item->billed_seconds > 0 ? Duration::hours($item->billed_seconds) : '' }}</td>
+                    <td class="num">{{ $item->pricing_type === PricingType::Hourly ? $money($item->unit_price).'/h' : __('Fixed price') }}</td>
                     <td class="num">{{ $money($item->amount) }}</td>
                 </tr>
                 @foreach ($item->timeEntries->sortBy('started_at') as $entry)
                     <tr class="entry">
                         <td>{{ $date($entry->started_at) }}{{ $entry->note ? ' · '.$entry->note : '' }}</td>
-                        <td class="num">{{ Duration::format($entry->duration_seconds) }} h</td>
+                        <td class="num">{{ Duration::hours($entry->duration_seconds) }}</td>
                         <td></td>
                         <td></td>
                     </tr>

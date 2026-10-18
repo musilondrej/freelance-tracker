@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\Currency;
 use App\Enums\Locale;
+use Carbon\CarbonImmutable;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
 use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
@@ -24,6 +25,8 @@ use Illuminate\Notifications\Notifiable;
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property string $password
+ * @property string|null $remember_token
  * @property ?string $app_authentication_secret
  * @property ?list<string> $app_authentication_recovery_codes
  * @property int|null $timer_alert_seconds Alert when a timer runs longer than this. Null means off.
@@ -39,6 +42,8 @@ use Illuminate\Notifications\Notifiable;
  * @property Currency $default_currency For new clients.
  * @property int|null $default_hourly_rate For new clients, in minor units.
  * @property Locale $locale UI language, also used for e-mail alerts.
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
  */
 #[Fillable([
     'name', 'email', 'password', 'timer_alert_seconds', 'recurring_reminder_days', 'deadline_reminder_days', 'notify_by_mail',

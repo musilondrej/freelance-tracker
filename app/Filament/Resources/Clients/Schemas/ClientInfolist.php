@@ -36,7 +36,7 @@ class ClientInfolist
                 Section::make(__('Rate'))
                     ->columnSpan(1)
                     ->schema([
-                        TextEntry::make('hourly_rate')->label(__('Default hourly rate'))->formatStateUsing(fn (?int $state, Client $record): ?string => $state === null ? null : Money::format($state, $record->currency)),
+                        TextEntry::make('hourly_rate')->label(__('Default hourly rate'))->formatStateUsing(fn (int $state, Client $record): string => Money::format($state, $record->currency)),
                         TextEntry::make('currency')->label(__('Currency'))->badge(),
                         TextEntry::make('archived_at')->label(__('Archived'))->dateTime()->visible(fn (Client $record): bool => $record->isArchived()),
                     ]),

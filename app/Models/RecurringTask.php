@@ -70,10 +70,16 @@ class RecurringTask extends Model
     protected static function booted(): void
     {
         static::updating(function (RecurringTask $recurring): void {
-            if ($recurring->periods_generated > 0 && $recurring->isDirty(['starts_on', 'frequency', 'interval', 'client_id', 'project_id'])) {
+            if ($recurring->isScheduleLocked() && $recurring->isDirty(['starts_on', 'frequency', 'interval', 'client_id', 'project_id'])) {
                 throw DomainRuleViolation::because('The schedule and client cannot be changed once tasks were generated. Archive it and create a new one.');
             }
         });
+    }
+
+    /** The schedule and client can no longer change: tasks were generated. */
+    public function isScheduleLocked(): bool
+    {
+        return $this->periods_generated > 0;
     }
 
     /** First day of period k, counted from 0. Always computed from starts_on, so schedules on the 31st do not drift. */

@@ -6,7 +6,6 @@ use App\Actions\Alerts\AlertForgottenTimer;
 use App\Actions\Alerts\RemindUpcomingDeadlines;
 use App\Actions\Alerts\RemindUpcomingRecurring;
 use App\Actions\Recurring\GenerateRecurringTasks;
-use App\Support\Period;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -30,8 +29,8 @@ Artisan::command('alerts:recurring', function (RemindUpcomingRecurring $remind):
 Schedule::command('recurring:generate')->hourly()->withoutOverlapping();
 Schedule::command('alerts:timer')->everyFifteenMinutes()->withoutOverlapping();
 // Nightly database backup, old backups pruned, and an alert when the newest one is too old.
-Schedule::command('backup:run --only-db')->dailyAt('02:00')->timezone(Period::timezone())->withoutOverlapping();
-Schedule::command('backup:clean')->dailyAt('02:30')->timezone(Period::timezone());
-Schedule::command('backup:monitor')->dailyAt('09:00')->timezone(Period::timezone());
-Schedule::command('alerts:deadlines')->dailyAt('08:00')->timezone(Period::timezone());
-Schedule::command('alerts:recurring')->dailyAt('08:00')->timezone(Period::timezone());
+Schedule::command('backup:run --only-db')->dailyAt('02:00')->withoutOverlapping();
+Schedule::command('backup:clean')->dailyAt('02:30');
+Schedule::command('backup:monitor')->dailyAt('09:00');
+Schedule::command('alerts:deadlines')->dailyAt('08:00');
+Schedule::command('alerts:recurring')->dailyAt('08:00');

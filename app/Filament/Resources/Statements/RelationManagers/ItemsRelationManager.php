@@ -69,7 +69,7 @@ class ItemsRelationManager extends RelationManager
                     ->toggleable(),
                 TextColumn::make('billed_seconds')
                     ->label(__('Time'))
-                    ->formatStateUsing(fn (int $state): ?string => $state > 0 ? Duration::format($state).' h' : null)
+                    ->formatStateUsing(fn (int $state): ?string => $state > 0 ? Duration::hours($state) : null)
                     ->alignEnd(),
                 TextColumn::make('unit_price')
                     ->label(__('Rate'))

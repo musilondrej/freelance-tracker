@@ -68,16 +68,20 @@ class Statement extends Model
         return (int) StatementItem::query()->where('statement_id', $this->id)->max('position') + 1;
     }
 
-    /** Sum of the items: from withSum('items as total'), loaded items, or a query. */
+    /** Sum of the items: from loaded items, or a query. */
     public function total(): int
     {
-        // Read the raw attribute: getAttribute('total') would resolve this very method as a relation.
-        return (int) ($this->getAttributes()['total'] ?? ($this->relationLoaded('items') ? $this->items->sum('amount') : $this->items()->sum('amount')));
+        return (int) ($this->relationLoaded('items') ? $this->items->sum('amount') : $this->items()->sum('amount'));
     }
 
     public function isDraft(): bool
     {
         return $this->status === StatementStatus::Draft;
+    }
+
+    public function isSent(): bool
+    {
+        return $this->status === StatementStatus::Sent;
     }
 
     /** @return BelongsTo<Client, $this> */

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Statements\Tables;
 
 use App\Enums\StatementStatus;
 use App\Filament\Resources\Statements\StatementResource;
+use App\Filament\Tables\ClientFilter;
 use App\Models\Statement;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
@@ -30,7 +31,7 @@ class StatementsTable
                     ->label(__('Client'))
                     ->searchable()
                     ->sortable()
-                    ->hidden(fn (mixed $livewire): bool => $livewire instanceof RelationManager),
+                    ->hiddenOn(RelationManager::class),
                 TextColumn::make('status')->label(__('Status'))->badge()->sortable(),
                 TextColumn::make('total')
                     ->label(__('Total (excl. VAT)'))
@@ -41,8 +42,7 @@ class StatementsTable
             ])
             ->filters([
                 SelectFilter::make('status')->label(__('Status'))->options(StatementStatus::class)->multiple(),
-                SelectFilter::make('client')->label(__('Client'))->relationship('client', 'name')->searchable()->preload()
-                    ->hidden(fn (mixed $livewire): bool => $livewire instanceof RelationManager),
+                ClientFilter::make()->hiddenOn(RelationManager::class),
             ])
             ->emptyStateHeading(__('No statements'))
             ->emptyStateDescription(__('Create one from the "To invoice" list or add time entries to a draft.'));

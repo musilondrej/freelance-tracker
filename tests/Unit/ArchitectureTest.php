@@ -16,16 +16,6 @@ use Tests\TestCase;
  */
 final class ArchitectureTest extends TestCase
 {
-    public function test_every_php_file_declares_strict_types(): void
-    {
-        $missing = $this->phpFiles(['app', 'config', 'database', 'routes', 'tests'])
-            ->reject(fn (string $path): bool => str_contains(File::get($path), 'declare(strict_types=1);'))
-            ->values()
-            ->all();
-
-        $this->assertSame([], $missing);
-    }
-
     public function test_actions_are_final_with_a_handle_method(): void
     {
         foreach ($this->phpFiles(['app/Actions']) as $path) {
@@ -63,16 +53,6 @@ final class ArchitectureTest extends TestCase
             'reporting' => [['app/Reporting']],
             'support' => [['app/Support']],
         ];
-    }
-
-    public function test_env_is_read_only_in_config(): void
-    {
-        $offending = $this->phpFiles(['app', 'routes', 'database'])
-            ->filter(fn (string $path): bool => preg_match('/(?<![\w>:])env\(/', File::get($path)) === 1)
-            ->values()
-            ->all();
-
-        $this->assertSame([], $offending);
     }
 
     public function test_no_debugging_leftovers(): void

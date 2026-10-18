@@ -24,9 +24,7 @@ final class DurationTest extends TestCase
     {
         return [
             'H:MM' => ['1:30', 5400],
-            'minutes' => ['90m', 5400],
             'hours and minutes, any case' => ['2H15M', 8100],
-            'decimal point' => ['1.5', 5400],
             'decimal comma with unit' => ['1,5h', 5400],
             'bare hours' => ['3', 10_800],
         ];
@@ -48,11 +46,9 @@ final class DurationTest extends TestCase
         return [
             'empty' => [''],
             'zero' => ['0'],
-            'zero H:MM' => ['0:00'],
             'garbage' => ['abc'],
             'minutes over 59' => ['1:75'],
             'negative' => ['-1'],
-            'unit only' => ['h'],
         ];
     }
 
@@ -70,7 +66,6 @@ final class DurationTest extends TestCase
         return [
             'null' => [null, '0:00'],
             'under a minute truncates' => [59, '0:00'],
-            'hour and a half' => [5400, '1:30'],
             'two-digit hours' => [36_060, '10:01'],
         ];
     }

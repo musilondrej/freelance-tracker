@@ -9,6 +9,7 @@ use App\Enums\PricingType;
 use App\Filament\Actions\StatementActions;
 use App\Filament\Actions\TaskActions;
 use App\Filament\Resources\Tasks\TaskResource;
+use App\Filament\Tables\ClientFilter;
 use App\Filament\Widgets\FinanceOverview;
 use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Task;
@@ -87,7 +88,7 @@ class Unbilled extends Page implements HasTable
                     ->description(fn (Task $record): ?string => $record->project?->name),
                 TextColumn::make('unbilled_seconds')
                     ->label(__('Unbilled time'))
-                    ->formatStateUsing(fn (mixed $state): ?string => (int) $state > 0 ? Duration::format((int) $state).' h' : null)
+                    ->formatStateUsing(fn (mixed $state): ?string => (int) $state > 0 ? Duration::hours((int) $state) : null)
                     ->alignEnd(),
                 TextColumn::make('unbilled_since')
                     ->label(__('Oldest work'))
@@ -101,7 +102,7 @@ class Unbilled extends Page implements HasTable
                     ->weight('bold'),
             ])
             ->filters([
-                SelectFilter::make('client')->label(__('Client'))->relationship('client', 'name')->searchable()->preload(),
+                ClientFilter::make(),
                 SelectFilter::make('pricing_type')->label(__('Pricing'))->options([
                     PricingType::Hourly->value => PricingType::Hourly->getLabel(),
                     PricingType::Fixed->value => PricingType::Fixed->getLabel(),

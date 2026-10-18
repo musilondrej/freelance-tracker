@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Builders;
 
+use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TimeEntry;
@@ -18,6 +19,12 @@ use Illuminate\Support\Facades\DB;
  */
 final class ProjectBuilder extends ArchivableBuilder
 {
+    /** Not archived and in the active status: the projects being worked on. */
+    public function inProgress(): static
+    {
+        return $this->active()->where('projects.status', ProjectStatus::Active);
+    }
+
     /**
      * Adds all-time `consumed` and `pending` in minor units, for the Project budget methods in lists.
      * Consumed is the work value: hourly entries plus ready fixed prices. Pending are fixed prices not ready yet.

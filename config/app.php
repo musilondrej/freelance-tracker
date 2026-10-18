@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+$displayTimezone = 'Europe/Prague';
+
 return [
 
     /*
@@ -70,7 +72,10 @@ return [
     'timezone' => 'UTC',
 
     // Timezone used for display, input and period boundaries (days, weeks, months).
-    'display_timezone' => 'Europe/Prague',
+    'display_timezone' => $displayTimezone,
+
+    // Scheduled times like dailyAt('08:00') are local too.
+    'schedule_timezone' => $displayTimezone,
 
     /*
     |--------------------------------------------------------------------------

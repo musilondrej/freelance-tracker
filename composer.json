@@ -53,9 +53,6 @@
         "post-install-cmd": [
             "@php -r \"is_dir('.git') && exec('git config core.hooksPath .githooks');\""
         ],
-        "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
-        ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ],
@@ -72,10 +69,13 @@
             "@php artisan config:clear --ansi",
             "phpunit"
         ],
-        "check": [
+        "static": [
             "pint --test --parallel",
             "rector process --dry-run",
-            "@analyse",
+            "@analyse"
+        ],
+        "check": [
+            "@static",
             "@test"
         ]
     },
@@ -90,9 +90,6 @@
         "sort-packages": true,
         "audit": {
             "abandoned": "report"
-        },
-        "allow-plugins": {
-            "php-http/discovery": true
         }
     },
     "minimum-stability": "stable",

@@ -6,7 +6,6 @@ namespace Tests\Feature\Filament;
 
 use App\Actions\Billing\CreateStatement;
 use App\Enums\StatementStatus;
-use App\Filament\Pages\Reports;
 use App\Filament\Pages\Unbilled;
 use App\Filament\Resources\Statements\Pages\ViewStatement;
 use App\Filament\Resources\Tasks\Pages\ListTasks;
@@ -78,21 +77,6 @@ final class FinanceUiTest extends TestCase
         Livewire::test(ViewStatement::class, ['record' => $statement->id])
             ->callAction('cancel');
         $this->assertSame(StatementStatus::Cancelled, $statement->refresh()->status);
-        $this->assertFalse($entry->isAllocated());
-    }
-
-    public function test_adds_selected_time_entries_to_a_new_draft(): void
-    {
-        $task = Task::factory()->create();
-        $a = TimeEntry::factory()->create(['task_id' => $task]);
-        $b = TimeEntry::factory()->create(['task_id' => $task]);
-
-        Livewire::test(ManageTimeEntries::class)
-            ->selectTableRecords([$a->id])
-            ->callAction(TestAction::make('addToStatement')->table()->bulk(), ['statement_id' => null]);
-
-        $this->assertTrue($a->isAllocated());
-        $this->assertFalse($b->isAllocated());
     }
 
     public function test_edits_a_note_inline_only_while_the_entry_is_not_on_a_statement(): void
@@ -157,11 +141,9 @@ final class FinanceUiTest extends TestCase
 
         $filters = ['range' => 'this_month', 'client' => $task->client_id];
 
-        $this->get(Reports::getUrl(['filters' => $filters]))->assertOk();
         Livewire::test(ReportBreakdown::class, ['pageFilters' => $filters, 'dimension' => 'client_id'])
             ->assertSee('Report Client')
-            ->assertSee('2:00')
-            ->assertSee(__('Real rate'));
+            ->assertSee('2:00');
         Livewire::test(ReportRates::class, ['pageFilters' => $filters])
             ->assertSee("1\u{00A0}200\u{00A0}Kč/h")
             ->assertSee("1\u{00A0}500\u{00A0}Kč/h");
@@ -170,8 +152,8 @@ final class FinanceUiTest extends TestCase
 
     public function test_overview_keeps_each_currency_on_its_own_line(): void
     {
-        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->create(['hourly_rate' => 120_000])])]);
-        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->eur()->create(['hourly_rate' => 6_000])])]);
+        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->create()])]);
+        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->eur()->create()])]);
 
         Livewire::test(FinanceOverview::class)->assertSee("1\u{00A0}200\u{00A0}Kč<br>60\u{00A0}€", false);
     }

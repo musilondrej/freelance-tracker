@@ -90,7 +90,7 @@ class TaskResource extends Resource
     /** "ACME-12 Login form" in titles, breadcrumbs and global search. */
     public static function getRecordTitle(?Model $record): string
     {
-        return $record instanceof Task ? $record->key().' '.$record->title : static::getModelLabel();
+        return $record instanceof Task ? $record->keyedTitle() : static::getModelLabel();
     }
 
     /**
@@ -100,7 +100,9 @@ class TaskResource extends Resource
      */
     protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
     {
-        if ($query instanceof TaskBuilder && Task::parseKey($search) !== null) {
+        assert($query instanceof TaskBuilder);
+
+        if (Task::parseKey($search) !== null) {
             $query->withKey($search);
 
             return;

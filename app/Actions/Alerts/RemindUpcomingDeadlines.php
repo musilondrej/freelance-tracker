@@ -25,7 +25,7 @@ final class RemindUpcomingDeadlines
             $tasks = Task::query()
                 ->active()
                 ->dueWithin((int) $user->deadline_reminder_days)
-                ->with(['client', 'project'])
+                ->with('client')
                 ->orderBy('due_on')
                 ->get()
                 ->filter(fn (Task $task): bool => SentAlert::claim("deadline:{$task->id}:{$task->due_on?->toDateString()}:user:{$user->id}"))

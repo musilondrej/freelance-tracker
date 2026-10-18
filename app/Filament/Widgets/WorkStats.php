@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Widgets;
 
 use App\Livewire\Concerns\RefreshesOnTimerChange;
-use App\Models\TimeEntry;
 use App\Models\User;
+use App\Reporting\DailyTrackedTime;
 use App\Support\Duration;
 use App\Support\Period;
 use Filament\Support\Icons\Heroicon;
@@ -25,7 +25,7 @@ class WorkStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $hours = fn (Period $period): string => Duration::format((int) TimeEntry::query()->startedIn($period)->sum('duration_seconds')).' h';
+        $hours = fn (Period $period): string => Duration::hours(DailyTrackedTime::total($period));
         $workday = User::workdayHours();
 
         return [

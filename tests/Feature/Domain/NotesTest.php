@@ -28,7 +28,7 @@ class NotesTest extends TestCase
     public function test_deleting_a_project_keeps_its_notes_on_the_client(): void
     {
         $project = Project::factory()->create();
-        $note = $project->notes()->create(['client_id' => $project->client_id, 'noted_on' => '2026-10-11', 'body' => 'Kick-off']);
+        $note = $project->notes()->create(['noted_on' => '2026-10-11', 'body' => 'Kick-off']);
 
         $project->delete();
 

@@ -22,6 +22,6 @@ class GeneratedTasksRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table->defaultSort('period_start', 'desc')->headerActions([]);
+        return $table->defaultSort('period_start', 'desc');
     }
 }

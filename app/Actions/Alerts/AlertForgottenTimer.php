@@ -27,7 +27,7 @@ final class AlertForgottenTimer
         $running = $entry->elapsedSeconds();
         $sent = 0;
 
-        foreach (User::query()->whereNotNull('timer_alert_seconds')->where('timer_alert_seconds', '<=', $running)->get() as $user) {
+        foreach (User::query()->where('timer_alert_seconds', '<=', $running)->get() as $user) {
             if (SentAlert::claim("timer:{$entry->id}:user:{$user->id}")) {
                 $user->notify(new TimerRunningTooLong($entry));
                 $sent++;

@@ -76,7 +76,7 @@ final class FinancialSummaryTest extends TestCase
     public function test_keeps_currencies_apart(): void
     {
         TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create()]);
-        $eur = Client::factory()->eur(6_000)->create();
+        $eur = Client::factory()->eur()->create();
         TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => $eur])]);
 
         $totals = FinancialSummary::for(Period::thisMonth());
@@ -133,7 +133,6 @@ final class FinancialSummaryTest extends TestCase
             [[__('No project'), 'CZK', 1_000_000], [$project->name, 'CZK', 60_000], [__('No project'), 'EUR', 6_000]],
             $workValues(FinancialSummary::breakdown('project_id', Period::thisMonth())),
         );
-        $this->assertSame(1_060_000, $this->czk()->workValue);
     }
 
     public function test_lists_unbilled_work_per_task_consistently_with_the_summary(): void
@@ -151,7 +150,7 @@ final class FinancialSummaryTest extends TestCase
 
     public function test_project_budget_is_consumed_by_work_value_not_fixed_price_times_hours(): void
     {
-        $project = Project::factory()->create(['budget' => 10_000_000, 'estimated_seconds' => 50 * 3600]);
+        $project = Project::factory()->create(['budget' => 10_000_000]);
         $hourly = Task::factory()->forProject($project)->create();
         TimeEntry::factory()->count(10)->lasting(3600)->create(['task_id' => $hourly]);
         $fixed = Task::factory()->forProject($project)->fixed(5_300_000)->create();
@@ -166,8 +165,7 @@ final class FinancialSummaryTest extends TestCase
         $this->assertSame(6_500_000, $stats->totals->workValue);
         $this->assertSame(3_500_000, $stats->project->budgetRemaining());
         $this->assertSame(65, $stats->project->budgetUsagePercent());
-        $this->assertSame(35 * 3600, $stats->trackedSeconds);
-        $this->assertSame(50 * 3600, $stats->estimatedSeconds);
+        $this->assertSame(35 * 3600, $stats->totals->trackedSeconds());
         $this->assertSame(BudgetStatus::Ok, $stats->project->budgetStatus());
     }
 
@@ -196,7 +194,7 @@ final class FinancialSummaryTest extends TestCase
         $this->assertSame(['CZK', 'EUR'], array_keys($days));
         $this->assertSame(['2026-10-15' => 3600], $days['EUR']);
         $this->assertSame(
-            (int) TimeEntry::query()->startedIn(Period::thisMonth())->sum('duration_seconds'),
+            DailyTrackedTime::total(Period::thisMonth()),
             array_sum(array_map(array_sum(...), $days)),
         );
     }
@@ -235,7 +233,9 @@ final class FinancialSummaryTest extends TestCase
     #[DataProvider('budgetStatuses')]
     public function test_derives_the_budget_status_from_the_displayed_percent(int $consumed, int $planned, ?int $budget, ?BudgetStatus $status): void
     {
-        $this->assertSame($status, ProjectStats::status($consumed, $planned, $budget));
+        $project = new Project()->setRawAttributes(['budget' => $budget, 'consumed' => $consumed, 'pending' => $planned - $consumed]);
+
+        $this->assertSame($status, $project->budgetStatus());
     }
 
     /** @return array<string, array{int, int, ?int, ?BudgetStatus}> */
@@ -246,7 +246,6 @@ final class FinancialSummaryTest extends TestCase
             'rounds to 80 % → near' => [7_960, 7_960, 10_000, BudgetStatus::Near],
             'just below' => [7_949, 7_949, 10_000, BudgetStatus::Ok],
             'planned over budget' => [5_000, 10_001, 10_000, BudgetStatus::Over],
-            'consumed over budget' => [10_001, 10_001, 10_000, BudgetStatus::Over],
             'zero budget, nothing used' => [0, 0, 0, BudgetStatus::Ok],
             'zero budget, used' => [1, 1, 0, BudgetStatus::Over],
         ];

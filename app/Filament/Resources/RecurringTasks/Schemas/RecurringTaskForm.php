@@ -27,7 +27,7 @@ class RecurringTaskForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $scheduleLocked = fn (?Model $record): bool => $record instanceof RecurringTask && $record->periods_generated > 0;
+        $scheduleLocked = fn (?Model $record): bool => $record instanceof RecurringTask && $record->isScheduleLocked();
 
         return $schema
             ->columns(3)
@@ -90,7 +90,7 @@ class RecurringTaskForm
                         MoneyInput::make('fixed_price', positive: true)
                             ->label(__('Price per period'))
                             ->visible(fn (Get $get): bool => WorkFields::pricing($get) === PricingType::Fixed)
-                            ->required(fn (Get $get): bool => WorkFields::pricing($get) === PricingType::Fixed)
+                            ->required()
                             ->suffix(fn (Get $get): string => WorkFields::currency($get)),
                         ToggleButtons::make('billing_timing')
                             ->label(__('Ready to bill'))
@@ -98,11 +98,9 @@ class RecurringTaskForm
                             ->default(BillingTiming::InArrears)
                             ->visible(fn (Get $get): bool => WorkFields::pricing($get) === PricingType::Fixed)
                             ->required(),
-                        MoneyInput::make('hourly_rate', positive: true)
+                        WorkFields::hourlyRate()
                             ->label(__('Own hourly rate'))
                             ->visible(fn (Get $get): bool => WorkFields::pricing($get) === PricingType::Hourly)
-                            ->suffix(fn (Get $get): string => WorkFields::currency($get).'/h')
-                            ->placeholder(fn (Get $get): ?string => WorkFields::inheritedRate($get))
                             ->helperText(__('Empty = project or client rate.')),
                     ]),
                 Section::make()

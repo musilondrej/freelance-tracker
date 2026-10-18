@@ -27,10 +27,10 @@ final class Money
         return intdiv(2 * $numerator + $denominator, 2 * $denominator);
     }
 
-    /** roundHalfUpDiv() for negative numerators too, like a budget overrun: rounds away from zero on .5. */
-    public static function roundHalfUpDivSigned(int $numerator, int $denominator): int
+    /** Minor units per hour, rounded half up. Null without time. */
+    public static function perHour(int $amount, int $seconds): ?int
     {
-        return ($numerator < 0 ? -1 : 1) * self::roundHalfUpDiv(abs($numerator), $denominator);
+        return $seconds > 0 ? self::roundHalfUpDiv($amount * 3600, $seconds) : null;
     }
 
     /**
@@ -69,5 +69,11 @@ final class Money
             : $amount / 100; // Display only: float conversion cannot affect stored values.
 
         return (string) Number::currency($value, in: $currency->value, locale: 'cs', precision: $precision);
+    }
+
+    /** roundHalfUpDiv() for negative numerators too, like a budget overrun: rounds away from zero on .5. */
+    private static function roundHalfUpDivSigned(int $numerator, int $denominator): int
+    {
+        return ($numerator < 0 ? -1 : 1) * self::roundHalfUpDiv(abs($numerator), $denominator);
     }
 }

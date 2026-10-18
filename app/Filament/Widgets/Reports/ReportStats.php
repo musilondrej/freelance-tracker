@@ -30,7 +30,7 @@ class ReportStats extends StatsOverviewWidget
         $totals = array_values(ReportFilters::from($this->pageFilters)->totals());
 
         if ($totals === []) {
-            return [Stat::make(__('Tracked time'), '0:00 h')->description(__('No data for the selected filters.'))->icon(Heroicon::OutlinedClock)];
+            return [Stat::make(__('Tracked time'), Duration::hours(0))->description(__('No data for the selected filters.'))->icon(Heroicon::OutlinedClock)];
         }
 
         $stats = self::timeStats($totals);
@@ -56,9 +56,9 @@ class ReportStats extends StatsOverviewWidget
         $nonBillable = array_sum(array_map(fn (CurrencyTotals $t): int => $t->nonBillableSeconds, $totals));
 
         return [
-            Stat::make(__('Tracked time'), self::hours($tracked))->icon(Heroicon::OutlinedClock),
-            Stat::make(__('Billable time'), self::hours($billable))->icon(Heroicon::OutlinedCurrencyDollar),
-            Stat::make(__('Non-billable time'), self::hours($nonBillable))->icon(Heroicon::OutlinedNoSymbol),
+            Stat::make(__('Tracked time'), Duration::hours($tracked))->icon(Heroicon::OutlinedClock),
+            Stat::make(__('Billable time'), Duration::hours($billable))->icon(Heroicon::OutlinedCurrencyDollar),
+            Stat::make(__('Non-billable time'), Duration::hours($nonBillable))->icon(Heroicon::OutlinedNoSymbol),
         ];
     }
 
@@ -80,11 +80,6 @@ class ReportStats extends StatsOverviewWidget
                 ->description(__('To invoice now: :amount', ['amount' => Money::format($t->unbilled, $t->currency)]))
                 ->icon(Heroicon::OutlinedBanknotes),
         ];
-    }
-
-    private static function hours(int $seconds): string
-    {
-        return Duration::format($seconds).' h';
     }
 
     private static function rate(CurrencyTotals $t, ?int $rate): string

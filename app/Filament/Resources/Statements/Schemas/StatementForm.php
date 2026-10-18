@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Statements\Schemas;
 
-use App\Models\Builders\ArchivableBuilder;
+use App\Filament\Forms\WorkFields;
 use App\Models\Statement;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -22,13 +21,7 @@ class StatementForm
             Section::make()
                 ->columns(2)
                 ->schema([
-                    Select::make('client_id')
-                        ->label(__('Client'))
-                        ->relationship('client', 'name', fn (ArchivableBuilder $query) => $query->active())
-                        ->default(fn (): ?int => request()->integer('client') ?: null)
-                        ->searchable()
-                        ->preload()
-                        ->required()
+                    WorkFields::client()
                         ->visibleOn('create')
                         ->helperText(__('The statement uses the client\'s currency.')),
                     Textarea::make('note')->label(__('Note'))->rows(3)->columnSpanFull(),

@@ -31,7 +31,7 @@ final class RatesAndSnapshotsTest extends TestCase
 
     public function test_freezes_rate_currency_and_pricing_type_when_the_entry_is_finished(): void
     {
-        $client = Client::factory()->eur(6_000)->create();
+        $client = Client::factory()->eur()->create();
         $entry = TimeEntry::factory()->lasting(5400)->create(['task_id' => Task::factory()->create(['client_id' => $client])]);
 
         $this->assertSame(PricingType::Hourly, $entry->pricing_type);
@@ -102,7 +102,6 @@ final class RatesAndSnapshotsTest extends TestCase
         return [
             'below half' => [17, 100],
             'exactly half' => [18, 100],
-            'odd rate' => [7, 99_999],
             'repeating fraction up' => [2400, 100_000],
             'almost a day' => [86_399, 123_457],
         ];

@@ -57,7 +57,7 @@ class NotesRelationManager extends RelationManager
 
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['project', 'task.client']))
-            ->defaultSort(fn (Builder $query) => $query->latest('noted_on')->orderByDesc('id'))
+            ->defaultSort('noted_on', 'desc')
             ->columns([
                 TextColumn::make('noted_on')->label(__('Date'))->date()->sortable()->width('1%')->alignStart(),
                 TextColumn::make('body')
@@ -70,12 +70,7 @@ class NotesRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label(__('Add note'))
-                    ->modalHeading(__('Add note'))
-                    ->mutateDataUsing(fn (array $data): array => [
-                        ...$data,
-                        // The relationship sets the owner's key; a note always needs its client too.
-                        'client_id' => $owner instanceof Client ? $owner->id : $owner->getAttribute('client_id'),
-                    ]),
+                    ->modalHeading(__('Add note')),
             ])
             ->recordActions([
                 ActionGroup::make([

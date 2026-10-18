@@ -37,7 +37,7 @@ final readonly class CurrencyTotals
     /** Work value per billable hour, rounded half up. Null without billable time. */
     public function averageHourlyRate(): ?int
     {
-        return $this->billableSeconds > 0 ? Money::roundHalfUpDiv($this->workValue * 3600, $this->billableSeconds) : null;
+        return Money::perHour($this->workValue, $this->billableSeconds);
     }
 
     /**
@@ -46,9 +46,7 @@ final readonly class CurrencyTotals
      */
     public function realHourlyRate(): ?int
     {
-        $seconds = $this->trackedSeconds();
-
-        return $seconds > 0 ? Money::roundHalfUpDiv($this->workValue * 3600, $seconds) : null;
+        return Money::perHour($this->workValue, $this->trackedSeconds());
     }
 
     public function trackedSeconds(): int

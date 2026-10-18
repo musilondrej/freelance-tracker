@@ -61,7 +61,7 @@ final class DeadlinesApproaching extends Notification implements ShouldQueue
     private function title(): string
     {
         return $this->tasks->count() === 1
-            ? __('Deadline coming up: :task', ['task' => $this->tasks->first()?->title])
+            ? __('Deadline coming up: :task', ['task' => $this->tasks->sole()->title])
             : __(':count deadlines coming up', ['count' => $this->tasks->count()]);
     }
 
@@ -69,15 +69,15 @@ final class DeadlinesApproaching extends Notification implements ShouldQueue
     private function lines(): array
     {
         return array_map(
-            fn (Task $task): string => $task->key().' '.$task->title.' – '.$task->due_on?->format(Period::SHORT_DATE_FORMAT),
+            fn (Task $task): string => $task->keyedTitle().' – '.$task->due_on?->format(Period::SHORT_DATE_FORMAT),
             $this->tasks->all(),
         );
     }
 
     private function url(): string
     {
-        return $this->tasks->count() === 1 && $this->tasks->first() instanceof Task
-            ? TaskResource::getUrl('view', ['record' => $this->tasks->first()])
+        return $this->tasks->count() === 1
+            ? TaskResource::getUrl('view', ['record' => $this->tasks->sole()])
             : TaskResource::getUrl('index');
     }
 }

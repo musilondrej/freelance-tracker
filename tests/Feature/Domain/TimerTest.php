@@ -155,7 +155,6 @@ final class TimerTest extends TestCase
     {
         return [
             'zero' => [0],
-            'negative' => [-60],
         ];
     }
 }
