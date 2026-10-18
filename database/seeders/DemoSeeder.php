@@ -16,7 +16,6 @@ use App\Enums\RecurrenceFrequency;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Models\Client;
-use App\Models\ExchangeRate;
 use App\Models\Project;
 use App\Models\RecurringTask;
 use App\Models\Task;
@@ -38,8 +37,6 @@ class DemoSeeder extends Seeder
             throw new RuntimeException('DemoSeeder only runs in the local environment.');
         }
 
-        // A fixed demo rate, so overviews show the CZK conversion without calling ČNB.
-        ExchangeRate::query()->create(['rate_on' => now()->subDay(), 'currency' => 'EUR', 'amount' => 1, 'rate' => 24_365]);
         User::query()->firstOrCreate(['email' => 'demo@example.com'], ['name' => 'Demo', 'password' => 'password']);
 
         $acme = Client::factory()->create([

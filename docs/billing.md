@@ -4,7 +4,7 @@ Amounts are `int` minor units without VAT. Different currencies are never summed
 
 ## Several currencies
 
-Overview cards (dashboard, To invoice) with more than one currency show one figure in CZK with the original amounts underneath; the ČNB rate date is in the page footer. `CzkTotal` converts with the newest ČNB rate up to today; `rates:fetch` stores the fixing daily at 14:45. Without a rate, each currency keeps its own line. The dashboard's work value chart converts each day the same way and stays empty until every used currency has a rate. Statements, PDFs, rates and stored amounts are never converted.
+Nothing is converted. Overview cards (dashboard, To invoice) show one line per currency, and the dashboard's work value chart has one stack per currency, each on its own axis.
 
 ## Figures
 

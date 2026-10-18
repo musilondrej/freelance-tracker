@@ -28,7 +28,6 @@ PostgreSQL 18. Constraints are tested in `tests/Feature/Domain/DatabaseConstrain
 | `statements` | `FK (client_id, currency)`, draft ⇔ no `sent_on` |
 | `statement_items` | `amount > 0` |
 | `statement_item_time_entry` | `UNIQUE(time_entry_id)` |
-| `exchange_rates` | `UNIQUE(currency, rate_on)`, `rate` in thousandths of CZK per `amount` units, no CZK |
 | `notes`, `links` | `FK (project_id, client_id)`, `FK (task_id, client_id)`, `ON DELETE SET NULL` keeps the record on the client; links are http(s) only |
 
 Task keys: `clients.code` + `tasks.number`. One atomic `UPDATE … RETURNING` hands out numbers. Numbers are never reused.

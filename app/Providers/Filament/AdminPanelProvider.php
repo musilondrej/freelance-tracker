@@ -7,11 +7,8 @@ namespace App\Providers\Filament;
 use App\Enums\NavigationGroup;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
-use App\Filament\Pages\Dashboard;
-use App\Filament\Pages\Unbilled;
 use App\Filament\Support\InitialsAvatarProvider;
 use App\Http\Middleware\SetUserLocale;
-use App\Reporting\CzkTotal;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -57,11 +54,6 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): string => Blade::render('@livewire(\'timer-indicator\')'))
-            ->renderHook(
-                PanelsRenderHook::PAGE_END,
-                fn (): string => view('filament.exchange-rate-footer', ['rateOn' => CzkTotal::rateDate()])->render(),
-                scopes: [Dashboard::class, Unbilled::class],
-            )
             ->navigationGroups(NavigationGroup::class)
             // Related records can be created on view pages too.
             ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)

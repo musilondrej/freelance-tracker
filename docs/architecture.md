@@ -30,7 +30,7 @@ Out of scope: multi-tenancy, roles, VAT, time rounding. Currency conversion exis
 | Decision | Why |
 |---|---|
 | Money as `int` minor units | No float errors. |
-| Currency only on the client | Snapshots copy it. Currencies are never summed, except approximate CZK overviews. |
+| Currency only on the client | Snapshots copy it. Currencies are never summed or converted; overviews show one line per currency. |
 | Generated `duration_seconds` and `amount` | They cannot drift from the times and the rate. |
 | Billing through allocations (entry → item) | Partial billing without double billing. |
 | `archived_at` instead of soft deletes | History stays visible in reports. |
