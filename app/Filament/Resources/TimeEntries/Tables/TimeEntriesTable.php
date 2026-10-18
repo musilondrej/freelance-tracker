@@ -20,6 +20,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -51,12 +52,13 @@ class TimeEntriesTable
                     ->searchable()
                     ->wrap()
                     ->hidden($inTask),
-                TextColumn::make('note')
+                TextInputColumn::make('note')
                     ->label(__('Note'))
-                    ->limit(60)
-                    ->wrap()
+                    ->placeholder(__('Add a note'))
+                    ->rules(['nullable', 'string', 'max:2000'])
+                    ->disabled($readOnly)
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('duration_seconds')
                     ->label(__('Duration'))
                     ->formatStateUsing(fn (?int $state): string => Duration::format($state))

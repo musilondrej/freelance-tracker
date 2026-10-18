@@ -359,5 +359,8 @@
     "Working day": "Pracovní den",
     "Yearly": "Ročně",
     "Yes": "Ano",
-    "You as the supplier on statement PDFs. Empty name = not printed.": "Vy jako dodavatel na PDF výkazu. Bez jména se nevytiskne."
+    "You as the supplier on statement PDFs. Empty name = not printed.": "Vy jako dodavatel na PDF výkazu. Bez jména se nevytiskne.",
+    "Add a note": "Přidat popis",
+    "Recent time entries": "Poslední časové záznamy",
+    "Show all": "Zobrazit vše"
 }
