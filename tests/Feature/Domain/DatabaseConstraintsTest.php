@@ -89,10 +89,6 @@ final class DatabaseConstraintsTest extends TestCase
                 ]),
                 'notes_project_client_foreign',
             ],
-            'exchange rate of CZK' => [
-                fn (): bool => DB::table('exchange_rates')->insert(['rate_on' => '2026-10-09', 'currency' => 'CZK', 'amount' => 1, 'rate' => 1_000]),
-                'exchange_rates_currency_check',
-            ],
             'link that is not http' => [
                 fn (): bool => DB::table('links')->insert(['client_id' => Client::factory()->create()->id, 'url' => 'javascript:alert(1)']),
                 'links_url_check',

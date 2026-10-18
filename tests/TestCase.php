@@ -13,7 +13,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // No test reaches the internet (ČNB rates) by accident; fake what you need.
+        // No test reaches the internet by accident; fake what you need.
         Http::preventStrayRequests();
     }
 }

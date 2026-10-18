@@ -14,7 +14,6 @@ Where features live. All UI is the Filament panel; there are no web routes.
 | To invoice | `Reporting/UnbilledWork.php` | `Filament/Pages/Unbilled.php` |
 | Reports, dashboard | `Reporting/` (`ReportFilters`, `FinancialSummary`, `RateHistory`) | `Filament/Pages/Reports.php`, `Filament/Widgets/Reports/`, `Filament/Widgets/` |
 | Notes, links | `Models/Note.php`, `Models/Link.php`, `Models/Concerns/BelongsToClientWork.php` | `Filament/RelationManagers/` |
-| Exchange rates | `Models/ExchangeRate.php`, `Actions/ExchangeRates/FetchCnbRates.php`, `Reporting/CzkTotal.php` | `Filament/Support/FinanceStats.php` |
 | Alerts | `Actions/Alerts/`, `Notifications/`, `routes/console.php` | `Filament/Pages/Auth/EditProfile.php` |
 | Profile, preferences | `Models/User.php` | `Filament/Pages/Auth/EditProfile.php` |
 

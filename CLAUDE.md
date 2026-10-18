@@ -15,7 +15,7 @@ Read `docs/architecture.md`, `docs/billing.md` and `docs/time-tracking.md` befor
 ## Rules
 
 - **Money:** always `int` in minor units (haléře/cents), in the DB as `bigint`. Never float or decimal.
-- **Currency:** lives only on the client. Never sum different currencies, except overview totals converted to CZK by `App\Reporting\CzkTotal` (ČNB rate, its date in the page footer). Statements and stored amounts are never converted.
+- **Currency:** lives only on the client. Never sum or convert different currencies; overviews show one line per currency.
 - **Time entries:**
   - `duration_seconds` and `amount` are Postgres generated columns. `#[Refreshes]` on `TimeEntry` reloads them after saving.
   - The rate snapshot is written only by `TimeEntry::booted()` and `Task::recalculateTimeEntries()`.

@@ -11,6 +11,7 @@ use App\Filament\Pages\Unbilled;
 use App\Filament\Resources\Statements\Pages\ViewStatement;
 use App\Filament\Resources\Tasks\Pages\ListTasks;
 use App\Filament\Resources\TimeEntries\Pages\ManageTimeEntries;
+use App\Filament\Widgets\FinanceOverview;
 use App\Filament\Widgets\Reports\ReportBreakdown;
 use App\Filament\Widgets\Reports\ReportRates;
 use App\Filament\Widgets\Reports\ReportStats;
@@ -165,6 +166,14 @@ final class FinanceUiTest extends TestCase
             ->assertSee("1\u{00A0}200\u{00A0}Kč/h")
             ->assertSee("1\u{00A0}500\u{00A0}Kč/h");
         Livewire::test(ReportStats::class, ['pageFilters' => $filters])->assertSee('2:00 h');
+    }
+
+    public function test_overview_keeps_each_currency_on_its_own_line(): void
+    {
+        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->create(['hourly_rate' => 120_000])])]);
+        TimeEntry::factory()->lasting(3600)->create(['task_id' => Task::factory()->create(['client_id' => Client::factory()->eur()->create(['hourly_rate' => 6_000])])]);
+
+        Livewire::test(FinanceOverview::class)->assertSee("1\u{00A0}200\u{00A0}Kč<br>60\u{00A0}€", false);
     }
 
     /** @param Testable<Component> $response */
