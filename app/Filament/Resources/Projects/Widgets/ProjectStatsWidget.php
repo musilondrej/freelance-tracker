@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Projects\Widgets;
 
 use App\Enums\BudgetStatus;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Project;
 use App\Reporting\ProjectStats;
 use App\Support\Duration;
@@ -14,6 +15,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class ProjectStatsWidget extends StatsOverviewWidget
 {
+    use RefreshesOnTimerChange;
+
     public ?Project $record = null;
 
     protected ?string $pollingInterval = null;

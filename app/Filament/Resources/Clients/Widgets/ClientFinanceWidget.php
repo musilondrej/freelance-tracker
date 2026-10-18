@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Clients\Widgets;
 
 use App\Filament\Support\FinanceStats;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\Client;
 use App\Reporting\CurrencyTotals;
 use App\Reporting\FinancialSummary;
@@ -15,6 +16,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class ClientFinanceWidget extends StatsOverviewWidget
 {
+    use RefreshesOnTimerChange;
+
     public ?Client $record = null;
 
     protected ?string $pollingInterval = null;

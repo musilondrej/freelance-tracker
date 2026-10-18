@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Widgets;
 
 use App\Enums\Currency;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\User;
 use App\Reporting\DailyTrackedTime;
 use App\Support\Period;
@@ -16,6 +17,8 @@ use Illuminate\Support\Js;
 
 class DailyTrackedTimeChart extends ChartWidget
 {
+    use RefreshesOnTimerChange;
+
     public const int DAYS = 30;
 
     protected static bool $isLazy = false;

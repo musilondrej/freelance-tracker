@@ -7,17 +7,15 @@ namespace App\Filament\Resources\TimeEntries\Pages;
 use App\Filament\Actions\ExportActions;
 use App\Filament\Resources\TimeEntries\Schemas\TimeEntryForm;
 use App\Filament\Resources\TimeEntries\TimeEntryResource;
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
-use Livewire\Attributes\On;
 
 class ManageTimeEntries extends ManageRecords
 {
-    protected static string $resource = TimeEntryResource::class;
+    use RefreshesOnTimerChange;
 
-    /** Re-render the table when the global timer starts or stops. */
-    #[On('timer-changed')]
-    public function refreshEntries(): void {}
+    protected static string $resource = TimeEntryResource::class;
 
     protected function getHeaderActions(): array
     {

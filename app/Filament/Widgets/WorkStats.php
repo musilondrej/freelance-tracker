@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Models\TimeEntry;
 use App\Models\User;
 use App\Support\Duration;
@@ -14,6 +15,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class WorkStats extends StatsOverviewWidget
 {
+    use RefreshesOnTimerChange;
+
     protected static bool $isLazy = false;
 
     protected ?string $pollingInterval = null;

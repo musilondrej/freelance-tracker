@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets\Reports;
 
+use App\Livewire\Concerns\RefreshesOnTimerChange;
 use App\Reporting\NamedTotals;
 use App\Reporting\ReportFilters;
 use App\Support\Duration;
@@ -16,6 +17,7 @@ use Filament\Widgets\TableWidget;
 class ReportBreakdown extends TableWidget
 {
     use InteractsWithPageFilters;
+    use RefreshesOnTimerChange;
 
     /** @var 'client_id'|'project_id' */
     public string $dimension = 'client_id';

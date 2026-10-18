@@ -22,6 +22,7 @@ use App\Filament\Resources\Tasks\RelationManagers\TimeEntriesRelationManager;
 use App\Filament\Resources\Tasks\TaskResource;
 use App\Filament\Widgets\ActiveProjects;
 use App\Filament\Widgets\UpcomingDeadlines;
+use App\Filament\Widgets\WorkStats;
 use App\Livewire\TimerIndicator;
 use App\Models\Client;
 use App\Models\Project;
@@ -121,6 +122,17 @@ final class ResourcesTest extends TestCase
 
         $this->assertSame(1800, TimeEntry::query()->whereNotNull('ended_at')->sole()->duration_seconds);
         $this->assertTrue(TimeEntry::query()->running()->sole()->started_at->equalTo($start));
+    }
+
+    public function test_stopping_the_timer_refreshes_the_dashboard(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-10-15 12:00', 'Europe/Prague'));
+        TimeEntry::factory()->running()->create(['started_at' => now()->subMinutes(90)]);
+        $stats = Livewire::test(WorkStats::class)->assertDontSee('1:30 h');
+
+        Livewire::test(TimerIndicator::class)->call('stop')->assertDispatched('timer-changed');
+
+        $stats->dispatch('timer-changed')->assertSee('1:30 h');
     }
 
     public function test_shows_a_blocked_delete_as_a_notification_and_keeps_the_record(): void
