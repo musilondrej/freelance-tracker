@@ -110,6 +110,20 @@ final class ResourcesTest extends TestCase
         $this->assertSame($task->id, TimeEntry::query()->running()->sole()->task_id);
     }
 
+    public function test_continues_a_past_entry_on_its_task_with_its_note(): void
+    {
+        $entry = TimeEntry::factory()->create(['note' => 'Review']);
+
+        Livewire::test(RecentTimeEntries::class)
+            ->callAction(TestAction::make('continueEntry')->table($entry))
+            ->assertDispatched('timer-changed');
+
+        $running = TimeEntry::query()->running()->sole();
+        $this->assertSame([$entry->task_id, 'Review'], [$running->task_id, $running->note]);
+
+        Livewire::test(RecentTimeEntries::class)->assertActionHidden(TestAction::make('continueEntry')->table($running));
+    }
+
     public function test_timer_modal_starts_back_dated_or_logs_a_finished_entry(): void
     {
         $this->freezeSecond();
