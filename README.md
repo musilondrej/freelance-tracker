@@ -18,7 +18,7 @@ A single-user app: it tracks work and prepares statements of work. Invoices are 
 ## Features
 
 - Clients, projects with budgets, tasks with checklists and keys like `ACME-12`.
-- Kanban board with drag and drop. Ongoing tasks, like long-term work for a regular client, stay off the board but can still be tracked.
+- Kanban board with drag and drop. Ongoing tasks, like development for a regular client, stay off the board but can still be tracked.
 - Global timer and manual time entries.
 - Hourly, fixed-price and non-billable work.
 - Recurring tasks, e.g. monthly maintenance or yearly hosting.

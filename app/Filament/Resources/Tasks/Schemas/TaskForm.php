@@ -19,6 +19,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 
 class TaskForm
@@ -43,6 +44,7 @@ class TaskForm
                     ->columnSpan(1)
                     ->schema([
                         Select::make('status')->label(__('Status'))->options(TaskStatus::class)
+                            ->hintIcon(Heroicon::OutlinedInformationCircle, tooltip: __('Ongoing tasks stay off the kanban, but you can still log time on them.'))
                             ->default(fn (): TaskStatus => TaskStatus::tryFrom(request()->string('status')->toString()) ?? TaskStatus::Todo)
                             ->required(),
                         Select::make('priority')->label(__('Priority'))->options(TaskPriority::class)->default(TaskPriority::Normal)->required(),

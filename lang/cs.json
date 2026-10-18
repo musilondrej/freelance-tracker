@@ -215,6 +215,7 @@
     "Oldest work": "Nejstarší práce",
     "On statement": "Na výkazu",
     "Ongoing": "Dlouhodobý",
+    "Ongoing tasks stay off the kanban, but you can still log time on them.": "Dlouhodobé úkoly se na kanbanu nezobrazují, čas se na ně ale zapisovat dá.",
     "Only draft statements can be changed.": "Upravit lze jen rozpracovaný výkaz.",
     "Only draft statements can be deleted; cancel sent ones instead.": "Smazat lze jen rozpracovaný výkaz. Odeslaný výkaz stornuj.",
     "Only fixed-price tasks are marked as ready to bill; hourly work is billable once tracked.": "K fakturaci se označují jen úkoly s fixní cenou. Hodinová práce je k fakturaci hned po zapsání.",
