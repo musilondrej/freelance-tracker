@@ -20,11 +20,11 @@ use App\Support\Money;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Toggle;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class TasksTable
@@ -93,9 +93,15 @@ class TasksTable
                 SelectFilter::make('status')->label(__('Status'))->options(TaskStatus::class)->multiple(),
                 SelectFilter::make('priority')->label(__('Priority'))->options(TaskPriority::class)->multiple(),
                 SelectFilter::make('pricing_type')->label(__('Pricing'))->options(PricingType::class),
-                Filter::make('open')->label(__('Open only'))->toggle()->default()
-                    ->query(fn (TaskBuilder $query) => $query->open()),
-                TernaryFilter::make('is_ongoing')->label(__('Ongoing')),
+                // Done and ongoing tasks are hidden until their switch is on. Own toggles, like ArchivedFilter.
+                Filter::make('done')
+                    ->schema([Toggle::make('show')->label(__('Show done'))])
+                    ->query(fn (TaskBuilder $query, array $data) => $query->unless($data['show'] ?? false, fn (TaskBuilder $q) => $q->open()))
+                    ->indicateUsing(fn (array $data): ?string => ($data['show'] ?? false) ? (string) __('Show done') : null),
+                Filter::make('ongoing')
+                    ->schema([Toggle::make('show')->label(__('Show ongoing'))])
+                    ->query(fn (TaskBuilder $query, array $data) => $query->unless($data['show'] ?? false, fn (TaskBuilder $q) => $q->withoutOngoing()))
+                    ->indicateUsing(fn (array $data): ?string => ($data['show'] ?? false) ? (string) __('Show ongoing') : null),
                 Filter::make('overdue')->label(__('Overdue'))->toggle()
                     ->query(fn (TaskBuilder $query) => $query->overdue()),
                 ArchivedFilter::make(),

@@ -19,7 +19,6 @@
     "A timer is already running. Stop it first.": "Časovač už běží. Nejdřív ho zastav.",
     "Account": "Účet",
     "Active": "Aktivní",
-    "Active only": "Jen aktivní",
     "Active projects": "Aktivní projekty",
     "Add item": "Přidat položku",
     "Add link": "Přidat odkaz",
@@ -47,7 +46,6 @@
     "Another timer is running. It will be stopped and saved.": "Běží jiný časovač. Bude zastaven a uložen.",
     "Archive": "Archivovat",
     "Archived": "Archivováno",
-    "Archived only": "Jen archivované",
     "at the period start": "na začátku období",
     "Average hourly rate": "Průměrná hodinová sazba",
     "Backlog": "Backlog",
@@ -221,7 +219,6 @@
     "Only fixed-price tasks are marked as ready to bill; hourly work is billable once tracked.": "K fakturaci se označují jen úkoly s fixní cenou. Hodinová práce je k fakturaci hned po zapsání.",
     "Only hourly time entries can be billed by time.": "Podle času lze fakturovat jen hodinové záznamy.",
     "Open": "Otevřít",
-    "Open only": "Jen otevřené",
     "Open tasks": "Otevřené úkoly",
     "Open time tracking": "Otevřít time tracking",
     "Or enter the duration instead.": "Nebo místo konce zadej délku.",
@@ -364,5 +361,8 @@
     "You as the supplier on statement PDFs. Empty name = not printed.": "Vy jako dodavatel na PDF výkazu. Bez jména se nevytiskne.",
     "Add a note": "Přidat popis",
     "Recent time entries": "Poslední časové záznamy",
-    "Show all": "Zobrazit vše"
+    "Show all": "Zobrazit vše",
+    "Show archived": "Zobrazit archivované",
+    "Show done": "Zobrazit hotové",
+    "Show ongoing": "Zobrazit dlouhodobé"
 }
